@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_social_media', function (Blueprint $table) {
-            $table->id();
-            $table->string('url');
+        Schema::create('employees', function (Blueprint $table) {
+              $table->id();
             $table->foreignId('user_id')->constrained('users');
+            $table->string('nip');
+            $table->foreignId('department_id')->constrained('departments');
+            $table->foreignId('position_id')->constrained('positions');
             $table->timestamps();
+            
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_social_media');
+        Schema::dropIfExists('employees');
     }
 };

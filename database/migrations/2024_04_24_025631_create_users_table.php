@@ -19,10 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->text('bio')->nullable();
             $table->string('url')->nullable();
-            $table->foreignId('role_id')->constrained('roles');
+            $table->unsignedBigInteger('role_id');
+            $table->foreign('role_id')->references('id')->on('roles');
             $table->timestamps();
-
-            // $table->integer('roles_id')->default(4);
         });
     }
 

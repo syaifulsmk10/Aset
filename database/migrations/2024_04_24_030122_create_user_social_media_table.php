@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applicants', function (Blueprint $table) {
-            $table->id();
+        Schema::create('user_social_media', function (Blueprint $table) {
+              $table->id();
+            $table->string('url');
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('asset_id')->constrained('assets');
-            $table->dateTime('submission_date');
-            $table->dateTime('expiry_date');
-            $table->dateTime('accepted_at')->nullable();
-            $table->dateTime('denied_at')->nullable();
-            $table->integer('type');
             $table->timestamps();
         });
     }
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('applicants');
+        Schema::dropIfExists('user_social_media');
     }
 };
