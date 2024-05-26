@@ -17,11 +17,6 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -42,8 +37,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+     protected $fillable = [
+        'name', 'username', 'email', 'password', 'nip', 'bio', 'url', 'role_id',
+    ];
+
     public function role()
     {
-        return $this->belongsTo(Role::class, 'roles_id'); // Menentukan relasi bahwa User memiliki satu Role
+        return $this->belongsTo(Role::class);
+    }
+
+    public function socialMedia()
+    {
+        return $this->hasOne(UserSocialMedia::class);
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    public function applicants()
+    {
+        return $this->hasMany(Applicant::class);
     }
 }

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-     public function postLogin(Request $request)
+      public function postLogin(Request $request)
     {
         $validate = $request->validate([
             "name" => "required",
@@ -21,27 +24,14 @@ class UserController extends Controller
             'data' => $validate
         ], 404);
 
-        if (Auth::user()->roles_id == 1) return response()->json([
-            'message' => 'admin',
+        if (Auth::user()->role_id == 1) return response()->json([
+            'message' => 'Berhasil Login Admin',
             'data' => $validate,
             'token' => $token
         ], 200);
-
-        if (Auth::user()->roles_id == 2) return response()->json([
-            'message' => 'kantin',
-            'data' => $validate,
-            'token' => $token
-        ], 200);
-
-        if (Auth::user()->roles_id == 3) return response()->json([
-            'message' => 'bank',
-            'data' => $validate,
-            'token' => $token
-        ], 200);
-
 
         return response()->json([
-            'message' => 'siswa',
+            'message' => 'Berhasil Login User',
             'data' => $validate,
             'token' => $token
         ], 200);
@@ -51,42 +41,40 @@ class UserController extends Controller
     {
         $user = User::create([
             "name" => $request->name,
+            "email" => $request->email,
             "password" => bcrypt($request->password),
-            "roles_id" => 1
+            "role_id" => 1
         ]);
 
         return response()->json([
             'message' => 'success register admin',
             'data' => $user
         ], 200);
-    }   
-
-
-
-    public function getUser(Request $request)
-{
-    $user = $request->user();
-
-    if ($user->roles_id == 1) {
-        $role = 'admin';
-    } elseif ($user->roles_id == 2) {
-        $role = 'kantin';
-    } elseif ($user->roles_id == 3) {
-        $role = 'bank';
-    } else {
-        $role = 'siswa';
     }
 
-    return response()->json([
-        'message' => 'success',
-        'data' => [
-            'name' => $user->name,
-            'role' => $role
-        ]
-    ], 200);
-}
+    public function getUser(Request $request)
+        {
+            $user = $request->user();
+               
+        if ($user->role_id == 1) {
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'name' => $user->name,
+                'role' => 'admin',
+            ]
+        ], 200);
+    } else {
 
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'name' => $user->name,
+                'role' => 'user'
+            ]
+        ], 200);
+        }
+    }
 
-   
 
 }

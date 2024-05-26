@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('username')->unique();
+            $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->bigInteger('nip')->nullable();
             $table->text('bio')->nullable();
             $table->string('url')->nullable();
-            $table->unsignedBigInteger('role_id');
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreignId('role_id');
             $table->timestamps();
         });
     }

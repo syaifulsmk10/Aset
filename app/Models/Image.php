@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserSocialMedia extends Model
+class Image extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['url'];
+    protected $fillable = ['applicant_id', 'path'];
 
-    public function user()
+    public function applicant()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Applicant::class);
     }
 }

@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\ApplicantController;
+use App\Http\Controllers\AssetController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DataApplicantController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,5 +26,41 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::post("/login", [UserController::class, 'postLogin'])->name("login");
-Route::post("/register", [UserController::class, 'registerUser'])->name("register");
-Route::middleware('auth:sanctum')->get('/user', [UserController::class, 'getUser']);
+Route::get('/register', [DashboardController::class, 'register']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [UserController::class, 'getUser']); 
+    Route::get('/dashboard', [DashboardController::class, 'getDashboardData']);
+  
+    
+    Route::prefix('/employee')->group(function () {
+    Route::get('/index', [EmployeeController::class, 'index']);
+    Route::post('/create', [EmployeeController::class, 'create']);
+    Route::post('/update/{id}', [EmployeeController::class, 'update']);
+    // Route::delete('/delete/{id}', [EmployeeController::class, 'delete']);
+    Route::post('/search', [EmployeeController::class, 'search']); //belum success
+});
+
+    Route::prefix('/applicant')->group(function () {
+    Route::get('/index', [ApplicantController::class, 'index']);
+    Route::post('/create', [ApplicantController::class, 'create']); //belum success
+});
+
+    Route::prefix('/data/applicant')->group(function () {
+    Route::get('/index', [DataApplicantController::class, 'index']);
+    Route::get('/index/{id}', [DataApplicantController::class, 'detail']);
+    Route::post('/accepted/{id}', [DataApplicantController::class, 'accept']); 
+    Route::post('/denied/{id}', [DataApplicantController::class, 'denied']);
+});
+
+Route::prefix('/aset')->group(function () {
+    Route::get('/index', [AssetController::class, 'index']);
+    Route::post('/create', [AssetController::class, 'create']); //belum success
+    Route::post('/update/{id}', [AssetController::class, 'update']);
+    // Route::delete('/delete/{id}', [AssetController::class, 'delete']);
+});
+
+
+
+});

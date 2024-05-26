@@ -21,6 +21,7 @@ return new class extends Migration
             $table->dateTime('received_date');
             $table->dateTime('expiration_date');
             $table->enum('status', range(1, 8));
+            $table->string('image');
             $table->timestamps();
         });
     }

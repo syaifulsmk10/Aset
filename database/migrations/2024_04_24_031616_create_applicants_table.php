@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('expiry_date');
             $table->dateTime('accepted_at')->nullable();
             $table->dateTime('denied_at')->nullable();
-            $table->string('type');
+            $table->enum('type', ['1', '2']);
             $table->timestamps();
         });
     }
