@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('accepted_at')->nullable();
             $table->dateTime('denied_at')->nullable();
             $table->enum('type', ['1', '2']);
+            $table->enum('status', ['1', '2', '3']);
             $table->timestamps();
         });
     }

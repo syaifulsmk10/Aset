@@ -6,29 +6,50 @@ use App\Models\Asset;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
+{public function index(Request $request)
 {
-    public function index()
-    {
-        $Asset = Asset::all();
+    $query = Asset::query();
 
-        $DataAsset = [];
-        foreach ($Asset as $Assets) {
-            $DataAsset[] = [
-                'asset_code' => $Assets->asset_code,
-                'asset_name' => $Assets->asset_name,
-                'category' => $Assets->category->name,
-                'item_condition' => $Assets->item_condition,
-                'price' => $Assets->price,
-                'received_date' => $Assets->received_date,
-                'expiration_date' => $Assets->expiration_date,
-                'image' => $Assets->image
-            ];
-        }
-
-        return response()->json([
-            "data" => $DataAsset
-        ]);
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->where(function($q) use ($search) {
+            $q->where('asset_code', 'LIKE', "%{$search}%")
+              ->orWhere('asset_name', 'LIKE', "%{$search}%")
+              ->orWhereHas('category', function($q) use ($search) {
+                  $q->where('name', 'LIKE', "%{$search}%");
+              });
+        });
     }
+
+     if ($request->has('status')) {
+        $status = $request->input('status');
+        $query->where('status', $status);
+    }
+
+    
+
+    $assets = $query->get();
+
+    $dataAsset = [];
+    foreach ($assets as $asset) {
+        $dataAsset[] = [
+            'asset_code' => $asset->asset_code,
+            'asset_name' => $asset->asset_name,
+            'category' => $asset->category->name,
+            'item_condition' => $asset->item_condition,
+            'price' => $asset->price,
+            'received_date' => $asset->received_date,
+            'expiration_date' => $asset->expiration_date,
+            'status' => $asset->status,
+            'image' => $asset->image
+        ];
+    }
+
+    return response()->json([
+        "data" => $dataAsset
+    ]);
+}
+
 
     public function create(Request $request)
     {
@@ -40,6 +61,7 @@ class AssetController extends Controller
             'price' => $request->price,
             'received_date' => $request->received_date,
             'expiration_date' => $request->expiration_date,
+            'status' => $request->status,
             'image' => $request->image,
         ]);
 
@@ -72,6 +94,9 @@ class AssetController extends Controller
         }
         if ($request->has('expiration_date')) {
         $asset->expiration_date = $request->expiration_date;
+        }
+        if ($request->has('status')) {
+        $asset->status = $request->status;
         }
         if ($request->has('image')) {
         $asset->image = $request->image;

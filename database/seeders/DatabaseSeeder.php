@@ -116,6 +116,7 @@ class DatabaseSeeder extends Seeder
         "submission_date" => Carbon::now(),
         "expiry_date" => Carbon::now()->addDays(8),
         "accepted_at" => Carbon::now(),
+        "status" => 2,
         "type" => "1",
     ]);
 

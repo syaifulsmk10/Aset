@@ -12,8 +12,6 @@ class ApplicantController extends Controller
     public function index(){
        $applicant = Applicant::where('user_id', Auth::user()->id)->get();
 
-    
-
         $applicantdata = [];
         foreach ($applicant as $applicants) {
 
@@ -32,7 +30,7 @@ class ApplicantController extends Controller
                 "tanggal pengajuan" => $applicants->submission_date,
                 "tanggal masa habis" => $applicants->expiry_date,
                 "tipe" => $applicants->type,
-                "status" => $status
+                "status" => 1
 
             ];
         }
@@ -49,6 +47,7 @@ class ApplicantController extends Controller
             'submission_date' => $request->submission_date,
             'expiry_date' => $request->expiry_date,
             'type' => $request->type,
+            'status' => 1,
         ]);
 
         $image = image::create([

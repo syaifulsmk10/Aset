@@ -10,7 +10,7 @@ class Applicant extends Model
     use HasFactory;
 
 
-    protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type'];
+    protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type', 'status'];
 
     public function user()
     {
