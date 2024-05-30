@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Image;
+use App\Models\Image_asset;
 use Illuminate\Http\Request;
 
-class ImageController extends Controller
+class ImageAssetController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        
+        //
     }
 
     /**
@@ -34,7 +34,7 @@ class ImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Image $image)
+    public function show(Image_asset $image_asset)
     {
         //
     }
@@ -42,7 +42,7 @@ class ImageController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Image $image)
+    public function edit(Image_asset $image_asset)
     {
         //
     }
@@ -50,7 +50,7 @@ class ImageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Image $image)
+    public function update(Request $request, Image_asset $image_asset)
     {
         //
     }
@@ -58,7 +58,7 @@ class ImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Image $image)
+    public function destroy(Image_asset $image_asset)
     {
         //
     }

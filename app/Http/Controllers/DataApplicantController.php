@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applicant;
+use App\Models\Asset;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,12 @@ class DataApplicantController extends Controller
    public function index(Request $request)
 {
     $query = Applicant::with(['asset.category', 'user'])->whereNull('denied_at');
+
+    if(!$query){
+            return response()->json([
+                "message" => "not request applicant"
+            ]);
+    }
 
     if ($request->has('search')) {
         $search = $request->input('search');
@@ -46,7 +53,7 @@ class DataApplicantController extends Controller
             "SubmissionDate" => $applicant->submission_date,
             "ExpiryDate" => $applicant->expiry_date,
             "UserApplicants" => $applicant->user->name,
-            "type" => $applicant->type,
+            "type" => $applicant->type
         ];
     }
 
@@ -82,23 +89,42 @@ class DataApplicantController extends Controller
 
 
     public function accept($id)
-    {
-        $Applicant = Applicant::find($id);
+{
+    $Applicant = Applicant::find($id);
 
-        if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
-            $Applicant->update([
-                "accepted_at" => Carbon::now(),
-                'status' => 2,
-            ]);
-            return response()->json([
-                "message" => "Accept Applicant Successfully"
-            ]);
-        } else {
-            return response()->json([
-                "message" => "Applicant cannot be accepted as they have already been accepted or denied."
-            ], 400);
+    if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
+        // Perbarui tanggal diterima dan status peminjam
+        $Applicant->update([
+            "accepted_at" => Carbon::now(),
+            'status' => 2,         
+        ]);
+
+        // Temukan aset terkait
+        $Asset = Asset::find($Applicant->asset_id);
+
+        if ($Asset) {
+            // Perbarui status aset berdasarkan tipe peminjam
+            if ($Applicant->type == 1) {
+                $Asset->update([
+                    'status' => 3,
+                ]);
+            } elseif ($Applicant->type == 2) {
+                $Asset->update([
+                    'status' => 1,
+                ]);
+            }
         }
+
+        return response()->json([
+            "message" => "Terima Peminjam Berhasil"
+        ]);
+    } else {
+        return response()->json([
+            "message" => "Peminjam tidak dapat diterima karena mereka sudah diterima atau ditolak sebelumnya."
+        ], 400);
     }
+}
+
 
 
 

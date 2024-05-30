@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create', [EmployeeController::class, 'create']);
     Route::post('/update/{id}', [EmployeeController::class, 'update']);
     // Route::delete('/delete/{id}', [EmployeeController::class, 'delete']);
-    Route::post('/search', [EmployeeController::class, 'search']); //belum success
+    Route::delete('/reset', [EmployeeController::class, 'reset']);
 });
 
     Route::prefix('/applicant')->group(function () {
@@ -58,8 +58,10 @@ Route::prefix('/aset')->group(function () {
     Route::get('/index', [AssetController::class, 'index']);
     Route::post('/create', [AssetController::class, 'create']); //belum success
     Route::post('/update/{id}', [AssetController::class, 'update']);
-    // Route::delete('/delete/{id}', [AssetController::class, 'delete']);
+    Route::delete('/delete/{id}', [AssetController::class, 'delete']);
 });
+
+    
 
 
 

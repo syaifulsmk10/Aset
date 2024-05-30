@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant;
 use App\Models\Asset;
+use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,10 @@ class DashboardController extends Controller
         $nearestReturn = Applicant::where('expiry_date', '>=', Carbon::now())->where("type",1 )
             ->orderBy('expiry_date', 'asc')
             ->first();
+        $ApplicantReturn = Applicant::where('submission_date', '<=', Carbon::now())->where("type",2 )
+            ->orderBy('submission_date', 'asc')
+            ->first();
+            
 
         $datanearestReturn = [];
         if($nearestReturn){
@@ -25,9 +30,16 @@ class DashboardController extends Controller
                 'assetname' => $nearestReturn->asset->asset_name,
                 'expiry_date' => $nearestReturn->expiry_date
             ];
-        }    
+        } 
 
-            
+        $dataApplicantReturn = [];
+         if($ApplicantReturn){
+            $dataApplicantReturn[] = [
+                "name" =>$ApplicantReturn->user->name,
+                "assetname" => $ApplicantReturn->asset->asset_name,
+                "submission_date" => $ApplicantReturn->submission_date
+            ];
+         }            
 
 
              return response()->json([
@@ -35,7 +47,11 @@ class DashboardController extends Controller
             'total_active_assets' => $totalActiveAssets,
             'total_damaged_assets' => $totalDamagedAssets,
             'total_loaned_assets' => $totalLoanedAssets,
-            'datanearestReturn' => $datanearestReturn
+            'datanearestReturn' => $datanearestReturn,
+            'dataApplicantReturn' => $dataApplicantReturn
+            
         ]);
     }
+
+
 }

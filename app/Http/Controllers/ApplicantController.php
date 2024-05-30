@@ -3,26 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applicant;
+use App\Models\Asset;
 use App\Models\image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicantController extends Controller
 {
-    public function index(){
+    /**
+     * Display a listing of the resource.
+     */
+   
+
+ public function index(){
        $applicant = Applicant::where('user_id', Auth::user()->id)->get();
+
+       if(!$applicant){
+            return response()->json([
+                "message" => "applicant null"
+            ]);
+       }
 
         $applicantdata = [];
         foreach ($applicant as $applicants) {
-
-              if(!$applicants->accepted_at && !$applicants->denied_at){
-                $status = "belum disetujui";
-            }if($applicants->accepted_at && !$applicants->denied_at){
-                $status = "disetujui";
-            }
-            if(!$applicants->accepted && $applicants->denied_at ){
-                $status = "ditolak";
-            }
 
             $applicantdata[] = [
                 "name" => $applicants->asset->asset_name,
@@ -30,7 +33,7 @@ class ApplicantController extends Controller
                 "tanggal pengajuan" => $applicants->submission_date,
                 "tanggal masa habis" => $applicants->expiry_date,
                 "tipe" => $applicants->type,
-                "status" => 1
+                "status" => $applicants->status
 
             ];
         }
@@ -41,7 +44,12 @@ class ApplicantController extends Controller
     }
     
     public function create(Request $request){
-        $applicant = Applicant::create([
+
+       $asset = Asset::find($request->asset_id);
+
+        if ($asset && $asset->status === 1){
+
+             $applicant = Applicant::create([
             'user_id' => Auth::user()->id,
             'asset_id' => $request->asset_id,
             'submission_date' => $request->submission_date,
@@ -58,5 +66,13 @@ class ApplicantController extends Controller
         return response()->json([
             'message' => 'applicant successfully'
         ]);
-    }
+ 
+          
+        }else{
+              return response()->json([
+                "message" => "Asset not active"
+            ]);
+        }
+       
 }
+   }

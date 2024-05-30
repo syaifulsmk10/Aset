@@ -10,12 +10,11 @@ use Illuminate\Support\Facades\Hash;
 class EmployeeController extends Controller
 {
   public function index(){
-    // Fetch users with role_id 2
     $users = User::where('role_id', 2)->get();
 
     $userData = [];
 
-    // Iterate through each user and gather necessary information
+
     foreach($users as $user){
         $userData[] = [
             "name" => $user->name,
@@ -26,7 +25,6 @@ class EmployeeController extends Controller
         ];
     }
 
-    // Return response as JSON
     return response()->json([
         'users' => $userData
     ]);
@@ -143,6 +141,14 @@ class EmployeeController extends Controller
 
         return response()->json($result);
 
+    }
+
+    public function reset(){
+        Employee::truncate();
+
+         return response()->json([
+            "message" => "employee reset success"
+        ]);
     }
     
 

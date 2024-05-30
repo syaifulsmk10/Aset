@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_social_media', function (Blueprint $table) {
-              $table->id();
-            $table->string('url');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        Schema::create('image_assets', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('asset_id')->constrained()->onDelete("cascade");
+            $table->string('path');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_social_media');
+        Schema::dropIfExists('image_assets');
     }
 };

@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('applicants', function (Blueprint $table) {
-             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('asset_id')->constrained('assets');
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete("cascade");
+            $table->foreignId('asset_id')->constrained('assets')->onDelete("cascade");
             $table->dateTime('submission_date');
             $table->dateTime('expiry_date');
             $table->dateTime('accepted_at')->nullable();
