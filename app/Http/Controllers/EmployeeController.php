@@ -9,11 +9,23 @@ use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
-  public function index(){
-    $users = User::where('role_id', 2)->get();
+ 
+
+public function index(Request $request){
+    $query = User::where('role_id', 2);
+
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->whereHas('Employee', function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('nip', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $perpage = $request->input('per_page', 10);
+    $users = $query->paginate($perpage);
 
     $userData = [];
-
 
     foreach($users as $user){
         $userData[] = [
@@ -26,7 +38,15 @@ class EmployeeController extends Controller
     }
 
     return response()->json([
-        'users' => $userData
+        'users' => $userData,
+        "pagination" => [
+            'total' => $users->total(),
+            'per_page' => $users->perPage(),
+            'current_page' => $users->currentPage(),
+            'last_page' => $users->lastPage(),
+            'next_page_url' => $users->nextPageUrl(),
+            'prev_page_url' => $users->previousPageUrl()
+        ]
     ]);
 }
 
@@ -91,20 +111,19 @@ class EmployeeController extends Controller
     }
 
 
-//     public function delete($id){
-//     $user = User::find($id);
-//       $user->delete();
-//          $employee = Employee::where('user_id', $user->id)->first();
-//             if ($employee) {
-//                  $employee->delete();
-//             }
+    public function delete($id){
+    $user = User::find($id);
+      $user->delete();
+         $employee = Employee::where('user_id', $user->id)->first();
+            if ($employee) {
+                 $employee->delete();
+            }
 
-  
 
-//       return response()->json([
-//         'message' => 'Success delete employee'
-//     ]);
-// }
+      return response()->json([
+        'message' => 'Success delete employee'
+    ]);
+}
 
 
     public function search(Request $request){

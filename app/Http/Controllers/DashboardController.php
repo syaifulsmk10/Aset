@@ -39,7 +39,23 @@ class DashboardController extends Controller
                 "assetname" => $ApplicantReturn->asset->asset_name,
                 "submission_date" => $ApplicantReturn->submission_date
             ];
-         }            
+         }  
+
+         $categories = Category::with('assets')->get();
+
+        $data = [];
+        foreach ($categories as $category) {
+            $totalPrice = 0;
+            foreach ($category->assets as $asset) {
+                $totalPrice += $asset->price;
+            }
+            $data[] = [
+                'category' => $category->name,
+                'total_price' => $totalPrice
+            ];
+        }
+         
+         
 
 
              return response()->json([
@@ -48,7 +64,8 @@ class DashboardController extends Controller
             'total_damaged_assets' => $totalDamagedAssets,
             'total_loaned_assets' => $totalLoanedAssets,
             'datanearestReturn' => $datanearestReturn,
-            'dataApplicantReturn' => $dataApplicantReturn
+            'dataApplicantReturn' => $dataApplicantReturn,
+            'data' => $data
             
         ]);
     }

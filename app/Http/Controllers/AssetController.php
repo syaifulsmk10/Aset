@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -12,6 +13,8 @@ class AssetController extends Controller
     
     $query = Asset::query();
 
+
+   
     if(!$query){
             return response()->json([
                 "message" => "asset null"

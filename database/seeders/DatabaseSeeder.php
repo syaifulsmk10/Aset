@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\image;
+use App\Models\ImageAsset;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
@@ -118,6 +119,23 @@ class DatabaseSeeder extends Seeder
         "accepted_at" => Carbon::now(),
         "status" => 2,
         "type" => "1",
+    ]);
+
+    Applicant::create([
+        "user_id" => 2,
+        "asset_id" => 2,
+        "submission_date" => Carbon::now(),
+        "expiry_date" => Carbon::now()->addDays(8),
+        "accepted_at" => Carbon::now(),
+        "status" => 2,
+        "type" => "1",
+    ]);
+
+
+    ImageAsset::create([
+        "asset_id" => 2,
+        "path" => "image.jpg",
+        
     ]);
 
     image::create([

@@ -29,7 +29,7 @@ class DataApplicantController extends Controller
                   });
             })->orWhereHas('user', function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%");
-            })->orWhere('type', 'LIKE', "%{$search}%");
+            });
         });
     }
 
@@ -43,7 +43,15 @@ class DataApplicantController extends Controller
          $query->where('status', $status);
     }
 
-    $applicants = $query->get();
+     if ($request->has('start_date') && $request->has('end_date')) {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query->whereBetween('submission_date', [$startDate, $endDate]);
+    }
+
+        $perpage = $request->input('per_page', 10);
+        $applicants = $query->paginate($perpage);
 
     $dataApplicant = [];
     foreach ($applicants as $applicant) {
@@ -58,7 +66,15 @@ class DataApplicantController extends Controller
     }
 
     return response()->json([
-        "dataApplicant" => $dataApplicant
+        "dataApplicant" => $dataApplicant,
+         "pagination" => [
+            'total' => $applicant->total(),
+            'per_page' => $applicant->perPage(),
+            'current_page' => $applicant->currentPage(),
+            'last_page' => $applicant->lastPage(),
+            'next_page_url' => $applicant->nextPageUrl(),
+            'prev_page_url' => $applicant->previousPageUrl()
+        ]
     ]);
 }
 
