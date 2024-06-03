@@ -30,10 +30,10 @@ class Asset extends Model
         return ItemCondition::fromValue((int) $value)->key;
     }
 
-    public function getStatusAttribute($value)
-    {
-        return Status::fromValue((int) $value)->key;
-    }
+        // public function getStatusAttribute($value)
+        // {
+        //     return Status::fromValue((int) $value)->key;
+        // }
 
     public function getImageAttribute($value)
         {

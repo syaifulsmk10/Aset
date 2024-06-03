@@ -55,7 +55,7 @@ public function index(Request $request){
         $user = user::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => "aaaa",
+            'password' => $request->password,
             'role_id' => 2,
         ]);
 

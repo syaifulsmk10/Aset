@@ -18,9 +18,6 @@ class DashboardController extends Controller
         $nearestReturn = Applicant::where('expiry_date', '>=', Carbon::now())->where("type",1 )
             ->orderBy('expiry_date', 'asc')
             ->first();
-        $ApplicantReturn = Applicant::where('submission_date', '<=', Carbon::now())->where("type",2 )
-            ->orderBy('submission_date', 'asc')
-            ->first();
             
 
         $datanearestReturn = [];
@@ -32,14 +29,7 @@ class DashboardController extends Controller
             ];
         } 
 
-        $dataApplicantReturn = [];
-         if($ApplicantReturn){
-            $dataApplicantReturn[] = [
-                "name" =>$ApplicantReturn->user->name,
-                "assetname" => $ApplicantReturn->asset->asset_name,
-                "submission_date" => $ApplicantReturn->submission_date
-            ];
-         }  
+        
 
          $categories = Category::with('assets')->get();
 
@@ -64,7 +54,6 @@ class DashboardController extends Controller
             'total_damaged_assets' => $totalDamagedAssets,
             'total_loaned_assets' => $totalLoanedAssets,
             'datanearestReturn' => $datanearestReturn,
-            'dataApplicantReturn' => $dataApplicantReturn,
             'data' => $data
             
         ]);

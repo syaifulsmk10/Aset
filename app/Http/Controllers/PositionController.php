@@ -26,7 +26,9 @@ class PositionController extends Controller
 
     public function update(Request $request, $id){
         $position = position::find($id);
-        $position->update();
+        if ($request->has('name')) {
+        $position->name = $request->name;
+    }
 
 
         return response()->json([

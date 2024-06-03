@@ -26,7 +26,9 @@ class DepartmentController extends Controller
 
     public function update(Request $request, $id){
         $department = department::find($id);
-        $department->update();
+        if ($request->has('name')) {
+        $$department->name = $request->name;
+    }
 
 
         return response()->json([

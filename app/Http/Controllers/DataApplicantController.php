@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 
 class DataApplicantController extends Controller
 {
-   public function index(Request $request)
+  public function index(Request $request)
 {
     $query = Applicant::with(['asset.category', 'user'])->whereNull('denied_at');
 
-    if(!$query){
-            return response()->json([
-                "message" => "not request applicant"
-            ]);
+    if(!$query->exists()){
+        return response()->json([
+            "message" => "no applicant found"
+        ]);
     }
 
     if ($request->has('search')) {
@@ -34,49 +34,54 @@ class DataApplicantController extends Controller
     }
 
     if($request->has('type')){
-         $type = $request->input('type');
-         $query->where('type', $type);
+        $type = $request->input('type');
+        $query->where('type', $type);
     }
 
     if($request->has('status')){
-         $status = $request->input('status');
-         $query->where('status', $status);
+        $status = $request->input('status');
+        $query->where('status', $status);
     }
 
-     if ($request->has('start_date') && $request->has('end_date')) {
+    if ($request->has('start_date') && $request->has('end_date')) {
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
         $query->whereBetween('submission_date', [$startDate, $endDate]);
     }
 
-        $perpage = $request->input('per_page', 10);
-        $applicants = $query->paginate($perpage);
+    $perpage = $request->input('per_page', 10);
+    $applicants = $query->paginate($perpage);
 
     $dataApplicant = [];
     foreach ($applicants as $applicant) {
+        $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
+        $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
+        $userName = $applicant->user ? $applicant->user->name : null;
+
         $dataApplicant[] = [
-            "NameAsset" => $applicant->asset->asset_name,
-            "Category" => $applicant->asset->category->name,
+            "NameAsset" => $assetName,
+            "Category" => $categoryName,
             "SubmissionDate" => $applicant->submission_date,
             "ExpiryDate" => $applicant->expiry_date,
-            "UserApplicants" => $applicant->user->name,
+            "UserApplicants" => $userName,
             "type" => $applicant->type
         ];
     }
 
     return response()->json([
         "dataApplicant" => $dataApplicant,
-         "pagination" => [
-            'total' => $applicant->total(),
-            'per_page' => $applicant->perPage(),
-            'current_page' => $applicant->currentPage(),
-            'last_page' => $applicant->lastPage(),
-            'next_page_url' => $applicant->nextPageUrl(),
-            'prev_page_url' => $applicant->previousPageUrl()
+        "pagination" => [
+            'total' => $applicants->total(),
+            'per_page' => $applicants->perPage(),
+            'current_page' => $applicants->currentPage(),
+            'last_page' => $applicants->lastPage(),
+            'next_page_url' => $applicants->nextPageUrl(),
+            'prev_page_url' => $applicants->previousPageUrl()
         ]
     ]);
 }
+
 
 
     public function detail($id)
@@ -109,17 +114,15 @@ class DataApplicantController extends Controller
     $Applicant = Applicant::find($id);
 
     if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
-        // Perbarui tanggal diterima dan status peminjam
         $Applicant->update([
             "accepted_at" => Carbon::now(),
             'status' => 2,         
         ]);
 
-        // Temukan aset terkait
+
         $Asset = Asset::find($Applicant->asset_id);
 
         if ($Asset) {
-            // Perbarui status aset berdasarkan tipe peminjam
             if ($Applicant->type == 1) {
                 $Asset->update([
                     'status' => 3,

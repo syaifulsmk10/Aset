@@ -26,7 +26,10 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id){
         $category = category::find($id);
-        $category->update();
+    if ($request->has('name')) {
+        $category->name = $request->name;
+    }
+    
 
 
         return response()->json([
