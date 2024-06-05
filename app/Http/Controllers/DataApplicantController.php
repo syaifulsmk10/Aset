@@ -50,6 +50,7 @@ class DataApplicantController extends Controller
         $query->whereBetween('submission_date', [$startDate, $endDate]);
     }
 
+
     $perpage = $request->input('per_page', 10);
     $applicants = $query->paginate($perpage);
 
@@ -164,5 +165,13 @@ class DataApplicantController extends Controller
                 "message" => "Applicant cannot be accepted as they have already been accepted or denied."
             ], 400);
         }
+    }
+
+    public function reset(){
+         Applicant::truncate();
+
+        response()->json([
+            "message" => "Success Reset Applicanf"
+        ]);
     }
 }

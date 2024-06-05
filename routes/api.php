@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('/applicant')->group(function () {
     Route::get('/index', [ApplicantController::class, 'index']);
     Route::post('/create', [ApplicantController::class, 'create']); //belum success
+     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);
 });
 
     Route::prefix('/data/applicant')->group(function () {
@@ -52,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/index/{id}', [DataApplicantController::class, 'detail']);
     Route::post('/accepted/{id}', [DataApplicantController::class, 'accept']); 
     Route::post('/denied/{id}', [DataApplicantController::class, 'denied']);
+    Route::delete('/reset', [DataApplicantController::class, 'reset']);
 });
 
 Route::prefix('/aset')->group(function () {

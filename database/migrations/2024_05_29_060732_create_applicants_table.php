@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('type', ['1', '2']);
             $table->enum('status', ['1', '2', '3']);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

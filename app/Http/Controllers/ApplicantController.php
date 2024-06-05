@@ -30,11 +30,23 @@ class ApplicantController extends Controller
             });
         }
 
+        if($request->has("start_date") && $request->has('end_date')){
+            $startdate = $request->input("start_date");
+            $enddate = $request->input("end_date");
+
+            $query->whereBetween('submission_date', [$startdate, $enddate]);
+        }
+
+         if ($request->has('status')) {
+        $status = $request->input('status');
+        $query->where('status', $status);
+        }
+
         $perpage = $request->input("per_page", 10);
         $applicants = $query->paginate($perpage);
 
         $applicantdata = [];
-        foreach ($applicants->items() as $applicant) {
+        foreach ($applicants as $applicant) {
             $applicantdata[] = [
                 "name" => $applicant->asset->asset_name,
                 "kategori" => $applicant->asset->category->name,
@@ -124,4 +136,21 @@ class ApplicantController extends Controller
             ], 404);
         }
     }
+
+     public function delete($id)
+    {
+        $Applicant = Applicant::find($id);
+        $Applicant->delete();
+        return response()->json([
+            "message" =>  "success delete",
+        ]);
+    }
+
+     public function restore($id)
+    {
+        $item = Applicant::onlyTrashed()->findOrFail($id);
+        $item->restore();
+        return response()->json($item, 200);
+    }
+
 }

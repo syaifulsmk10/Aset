@@ -45,6 +45,8 @@ class AssetController extends Controller
     }
 
     
+
+    
     // Pagination
     $perPage = $request->input('per_page', 10); // Default items per page is 10
     $assets = $query->paginate($perPage);
