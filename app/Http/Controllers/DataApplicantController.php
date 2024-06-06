@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant;
 use App\Models\Asset;
+use App\Models\Image;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class DataApplicantController extends Controller
 {
   public function index(Request $request)
 {
-    $query = Applicant::with(['asset.category', 'user'])->whereNull('denied_at');
+    $query = Applicant::with(['asset.category', 'user'])->whereNull('denied_at')->whereNull('delete_admin');
 
     if(!$query->exists()){
         return response()->json([
@@ -157,6 +158,21 @@ class DataApplicantController extends Controller
                 "denied_at" => Carbon::now(),
                 "status" => 3,
             ]);
+
+            $Asset = Asset::find($Applicant->asset_id);
+
+         if ($Asset) {
+            if ($Applicant->type == 1) {
+                $Asset->update([
+                    'status' => 1,
+                ]);
+            } elseif ($Applicant->type == 2) {
+                $Asset->update([
+                    'status' => 3,
+                ]);
+            }
+        }
+
             return response()->json([
                 "message" => "Denied Applicant Successfully"
             ]);
@@ -167,11 +183,31 @@ class DataApplicantController extends Controller
         }
     }
 
-    public function reset(){
-         Applicant::truncate();
+   public function reset(){
+     Image::truncate();
+    Applicant::truncate();
+   
 
-        response()->json([
-            "message" => "Success Reset Applicanf"
+    return response()->json([
+        "message" => "Success Reset Applicant"
+    ]);
+}
+
+    public function delete($id)
+    {
+        $Applicant = Applicant::find($id);
+        if ($Applicant->status == 2 || $Applicant->status == 3) {
+            $Applicant->update([
+                "delete_admin" => now(),
+            ]);
+
+           return response()->json([
+            "message" => "Success Delete"
         ]);
+        }else{
+           return response()->json([
+            "message" => "Cant Delete, Please Acc/deneid"
+             ]);
+        };
     }
 }

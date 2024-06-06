@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Applicant;
 use App\Models\Asset;
 use App\Models\image;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,7 @@ class ApplicantController extends Controller
 
     public function index(Request $request)
     {
-        $query = Applicant::where('user_id', Auth::user()->id);
+        $query = Applicant::where('user_id', Auth::user()->id)->whereNull('delete_user');
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -76,9 +77,11 @@ class ApplicantController extends Controller
 
         $asset = Asset::find($request->asset_id);
         // dd(is_null($asset));
-        $applicant = Applicant::where("user_id", Auth::user()->id)->where("type", $request->type)->first();
+        
+      
+       
         if ($asset) {
-            if ($asset->status == '1' && $applicant->type == '1') {
+            if ($asset->status == '1' && $request->type == '1') {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
                     'asset_id' => $request->asset_id,
@@ -102,7 +105,7 @@ class ApplicantController extends Controller
                 ]);
             } 
 
-            elseif ($asset->status == '3' && $applicant->type == '2') {
+            elseif ($asset->status == '3' &&$request->type == '2') {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
                     'asset_id' => $request->asset_id,
@@ -140,17 +143,35 @@ class ApplicantController extends Controller
      public function delete($id)
     {
         $Applicant = Applicant::find($id);
-        $Applicant->delete();
-        return response()->json([
+        $asset = Asset::find($Applicant->asset_id);
+        if ($Applicant->status == "2" || $Applicant->status == "3") {
+             $Applicant->update([
+            "delete_user" => now(),
+        ]);
+            return response()->json([
             "message" =>  "success delete",
         ]);
+        }elseif($Applicant && $Applicant->status == 1 && $Applicant->type == 1){
+              $Applicant->delete();
+            $asset->update([
+                'status' => 1,
+            ]);
+            return response()->json([
+            "message" =>  "success delete",
+                ]);
+        }elseif($Applicant && $Applicant->type == "2" && $Applicant->status == "1"  ){
+            $Applicant->delete();
+            $asset->update([
+                'status' => 3,
+            ]);
+            return response()->json([
+            "message" =>  "success delete",
+                ]);
+        }else{
+             return response()->json([
+                "message" => "cant delete",
+            ]);
+        }
+      
     }
-
-     public function restore($id)
-    {
-        $item = Applicant::onlyTrashed()->findOrFail($id);
-        $item->restore();
-        return response()->json($item, 200);
-    }
-
 }

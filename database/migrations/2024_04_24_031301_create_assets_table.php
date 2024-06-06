@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('asset_code');
             $table->string('asset_name');
-            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('category_id')->constrained('categories')->onDelete("cascade");
             $table->enum('item_condition', range(1, 7));
             $table->bigInteger('price');
             $table->dateTime('received_date');

@@ -11,7 +11,7 @@ use BenSampo\Enum\Enum;
  */
 final class StatusApplicant extends Enum
 {
-    const Belum_Disetujui = 0;
-    const Disetujui = 1;
-    const Ditolak = 2;
+    const Belum_Disetujui = 1;
+    const Disetujui = 2;
+    const Ditolak = 3;
 }

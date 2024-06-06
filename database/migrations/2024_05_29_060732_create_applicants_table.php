@@ -21,8 +21,10 @@ return new class extends Migration
             $table->dateTime('denied_at')->nullable();
             $table->enum('type', ['1', '2']);
             $table->enum('status', ['1', '2', '3']);
+            $table->dateTime('delete_admin')->nullable();
+            $table->dateTime('delete_user')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+          
         });
     }
 

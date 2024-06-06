@@ -52,13 +52,12 @@ public function index(Request $request){
 
 
     public function create(Request $request){
-        $user = user::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-            'role_id' => 2,
+         $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => Hash::make($request->password),
+            "role_id" => 2
         ]);
-
 
         $employes = Employee::create([
             'user_id' => $user->id,
@@ -164,6 +163,7 @@ public function index(Request $request){
 
     public function reset(){
         Employee::truncate();
+        User::truncate();
 
          return response()->json([
             "message" => "employee reset success"

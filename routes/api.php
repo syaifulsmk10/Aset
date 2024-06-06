@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataApplicantController;
 use App\Http\Controllers\EmployeeController;
@@ -25,42 +26,51 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::post("/login", [UserController::class, 'postLogin'])->name("login");
-Route::get('/register', [DashboardController::class, 'register']);
+Route::post("/login", [UserController::class, 'postLogin'])->name("login"); //done
+Route::get('/register', [UserController::class, 'register']); //done
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [UserController::class, 'getUser']); 
-    Route::get('/dashboard', [DashboardController::class, 'getDashboardData']);
+    Route::get('/user', [UserController::class, 'getUser']);  //done
+    Route::get('/dashboard', [DashboardController::class, 'getDashboardData']); //done
   
     
     Route::prefix('/employee')->group(function () {
-    Route::get('/index', [EmployeeController::class, 'index']);
-    Route::post('/create', [EmployeeController::class, 'create']);
-    Route::post('/update/{id}', [EmployeeController::class, 'update']);
-    Route::delete('/delete/{id}', [EmployeeController::class, 'delete']);
-    Route::delete('/reset', [EmployeeController::class, 'reset']);
+    Route::get('/index', [EmployeeController::class, 'index']); //done
+    Route::post('/create', [EmployeeController::class, 'create']); //done
+    Route::post('/update/{id}', [EmployeeController::class, 'update']); //done
+    Route::delete('/delete/{id}', [EmployeeController::class, 'delete']); //done
+    Route::delete('/reset', [EmployeeController::class, 'reset']); //done
 });
 
     Route::prefix('/applicant')->group(function () {
-    Route::get('/index', [ApplicantController::class, 'index']);
-    Route::post('/create', [ApplicantController::class, 'create']); //belum success
-     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);
+    Route::get('/index', [ApplicantController::class, 'index']); //done
+    Route::post('/create', [ApplicantController::class, 'create']); //done
+     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);  //done
 });
 
     Route::prefix('/data/applicant')->group(function () {
-    Route::get('/index', [DataApplicantController::class, 'index']);
-    Route::get('/index/{id}', [DataApplicantController::class, 'detail']);
-    Route::post('/accepted/{id}', [DataApplicantController::class, 'accept']); 
-    Route::post('/denied/{id}', [DataApplicantController::class, 'denied']);
-    Route::delete('/reset', [DataApplicantController::class, 'reset']);
+    Route::get('/index', [DataApplicantController::class, 'index']); //done
+    Route::get('/index/{id}', [DataApplicantController::class, 'detail']); //done
+    Route::post('/accepted/{id}', [DataApplicantController::class, 'accept']);  //done
+    Route::post('/denied/{id}', [DataApplicantController::class, 'denied']) ; //done
+    Route::delete('/delete/{id}', [DataApplicantController::class, 'delete']); //done
+    Route::delete('/reset', [DataApplicantController::class, 'reset']); //done
 });
 
 Route::prefix('/aset')->group(function () {
-    Route::get('/index', [AssetController::class, 'index']);
-    Route::post('/create', [AssetController::class, 'create']); //belum success
-    Route::post('/update/{id}', [AssetController::class, 'update']);
-    Route::delete('/delete/{id}', [AssetController::class, 'delete']);
+    Route::get('/index', [AssetController::class, 'index']); //done
+    Route::post('/create', [AssetController::class, 'create']);  //done
+    Route::post('/update/{id}', [AssetController::class, 'update']); //done
+    Route::delete('/delete/{id}', [AssetController::class, 'delete']); //done
+});
+
+
+Route::prefix('/category')->group(function () {
+    Route::get('/index', [CategoryController::class, 'index']); //done
+    Route::post('/create', [CategoryController::class, 'create']);  //done
+    Route::post('/update/{id}', [CategoryController::class, 'update']); //done
+    Route::delete('/delete/{id}', [CategoryController::class, 'delete']);
 });
 
     

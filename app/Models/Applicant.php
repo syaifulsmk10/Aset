@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Applicant extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     
-    protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type', 'status'];
+    protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type', 'status', 'delete_admin', 'delete_user'];
 
     public function user()
     {
