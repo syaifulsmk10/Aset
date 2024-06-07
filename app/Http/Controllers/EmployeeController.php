@@ -12,7 +12,22 @@ class EmployeeController extends Controller
  
 
 public function index(Request $request){
+    
     $query = User::where('role_id', 2);
+
+    if(!$query){
+            return response()->json([
+                "message" => "not employees",
+            ]);
+    }
+
+        foreach($query as $users){
+            if($users->email == $request->email){
+            return response()->json([
+                "message" => "email is already in use"
+            ]);
+            }
+        }
 
     if ($request->has('search')) {
         $search = $request->input('search');

@@ -45,6 +45,16 @@ class UserController extends Controller
 
     public function registerUser(Request $request)
     {
+
+        $user = user::where('role_id', 1)->get();
+        foreach($user as $users){
+            if($users->email == $request->email){
+            return response()->json([
+                "message" => "email is already in use"
+            ]);
+            }
+        }
+
         $user = User::create([
             "name" => $request->name,
             "email" => $request->email,
