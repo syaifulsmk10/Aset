@@ -17,7 +17,7 @@ class CategoryController extends Controller
 
     public function create(Request $request){
         category::create([
-            $request->name,
+            'name' => $request->name,
         ]);
         return response()->json([
             "message" => "success create category"
@@ -29,6 +29,8 @@ class CategoryController extends Controller
     if ($request->has('name')) {
         $category->name = $request->name;
     }
+
+     $category->save();
     
 
 

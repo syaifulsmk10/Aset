@@ -56,7 +56,7 @@ class ApplicantController extends Controller
                 "tipe" => $applicant->type,
                 "status" => $applicant->status
             ];
-        }
+        } 
 
         return response()->json([
             'applicantdata' => $applicantdata,
@@ -224,11 +224,17 @@ class ApplicantController extends Controller
         if ($request->has('type')) {
             $Applicant->type = $request->type;
         }
-        if ($request->has('path')) {
-            $Applicant->path = $request->path;
-        }
+        
 
         $Applicant->save();
+
+        if ($request->has('path')) {
+                $image = Image::where('Applicant_id', $Applicant->id)->first();
+                if($image){
+                    $image->path = $request->path;
+                    $image->save();
+                }
+        }
 
          return response()->json([
             "message" => "Applicant updated successfully"

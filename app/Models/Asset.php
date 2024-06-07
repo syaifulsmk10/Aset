@@ -11,14 +11,17 @@ class Asset extends Model
 {
     use HasFactory;
 
-     protected $fillable = ['asset_code', 'asset_name', 'category_id', 'item_condition', 'price', 'received_date', 'expiration_date', 'status', 'image'];
+     protected $fillable = ['asset_code', 'asset_name', 'category_id', 'item_condition', 'price', 'received_date', 'expiration_date', 'status'];
     
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-   
+     public function imageAssets()
+    {
+        return $this->hasMany(ImageAsset::class);
+    }
 
     public function applicants()
     {

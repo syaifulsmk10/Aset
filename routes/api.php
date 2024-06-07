@@ -45,9 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/applicant')->group(function () {
     Route::get('/index', [ApplicantController::class, 'index']); //done
-    Route::get('/index/{id}', [ApplicantController::class, 'detail']); 
+    Route::get('/index/{id}', [ApplicantController::class, 'detail']); //done 
     Route::post('/create', [ApplicantController::class, 'create']); //done
-    Route::post('/update/{id}', [ApplicantController::class, 'update']); 
+    Route::post('/update/{id}', [ApplicantController::class, 'update']); //done 
     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);  //done
 });
 
@@ -69,9 +69,9 @@ Route::prefix('/aset')->group(function () {
 
 
 Route::prefix('/category')->group(function () {
-    Route::get('/index', [CategoryController::class, 'index']); 
-    Route::post('/create', [CategoryController::class, 'create']);  
-    Route::post('/update/{id}', [CategoryController::class, 'update']); 
-    Route::delete('/delete/{id}', [CategoryController::class, 'delete']);
+    Route::get('/index', [CategoryController::class, 'index']); //done
+    Route::post('/create', [CategoryController::class, 'create']);  //done
+    Route::post('/update/{id}', [CategoryController::class, 'update']);  //done
+    Route::delete('/delete/{id}', [CategoryController::class, 'delete']); //done
 });
 });

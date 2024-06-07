@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class ImageAsset extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['asset_id', 'path'];
+     public function asset()
+    {
+        return $this->belongsTo(Asset::class);
+    }
 }

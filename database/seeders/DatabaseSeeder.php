@@ -93,7 +93,7 @@ class DatabaseSeeder extends Seeder
         "received_date" => Carbon::now(),
         "expiration_date" => Carbon::now()->addDays(10),
         "status" => 1,
-        "image" => "tes.png"
+
     ]);
 
     Asset::create([
@@ -105,7 +105,6 @@ class DatabaseSeeder extends Seeder
         "received_date" => Carbon::now(),
         "expiration_date" => Carbon::now()->addDays(8),
         "status" => 1,
-        "image" => "tes.png"
     ]);
 
     
@@ -131,12 +130,6 @@ class DatabaseSeeder extends Seeder
         "type" => "1",
     ]);
 
-
-    ImageAsset::create([
-        "asset_id" => 2,
-        "path" => "image.jpg",
-        
-    ]);
 
     image::create([
         "applicant_id" => 1,

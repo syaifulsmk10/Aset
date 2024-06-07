@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\Category;
+use App\Models\ImageAsset;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {public function index(Request $request)
 {
-   
+
+  
+     $query = Asset::with('imageAssets', 'category');
+
     
-    $query = Asset::query();
 
-
-   
     if(!$query){
             return response()->json([
                 "message" => "asset null"
@@ -51,10 +52,9 @@ class AssetController extends Controller
     $perPage = $request->input('per_page', 10); // Default items per page is 10
     $assets = $query->paginate($perPage);
 
-    $dataAsset = [];
-    foreach ($assets as $asset) {
-        $dataAsset[] = [
-            'asset_code' => $asset->asset_code,
+        $assets->getCollection()->transform(function ($asset) {
+            return [
+               'asset_code' => $asset->asset_code,
             'asset_name' => $asset->asset_name,
             'category' => $asset->category->name,
             'item_condition' => $asset->item_condition,
@@ -62,21 +62,41 @@ class AssetController extends Controller
             'received_date' => $asset->received_date,
             'expiration_date' => $asset->expiration_date,
             'status' => $asset->status,
-            'image' => $asset->image
+            'image' => collect($asset->imageAssets)->pluck('path')
         ];
-    }
+        });
 
-    return response()->json([
-        "data" => $dataAsset,
-        "pagination" => [
-            'total' => $assets->total(),
-            'per_page' => $assets->perPage(),
-            'current_page' => $assets->currentPage(),
-            'last_page' => $assets->lastPage(),
-            'next_page_url' => $assets->nextPageUrl(),
-            'prev_page_url' => $assets->previousPageUrl()
-        ]
-    ]);
+        return $assets;
+
+
+    
+
+    // foreach ($assets as $asset) {
+    //     $dataAsset[] = [
+          
+    //         'asset_code' => $asset->asset_code,
+    //         'asset_name' => $asset->asset_name,
+    //         'category' => $asset->category->name,
+    //         'item_condition' => $asset->item_condition,
+    //         'price' => $asset->price,
+    //         'received_date' => $asset->received_date,
+    //         'expiration_date' => $asset->expiration_date,
+    //         'status' => $asset->status,
+    //         'image' => $images
+    //     ];
+    // }
+
+    // return response()->json([
+    //     "data" => $dataAsset,
+    //     "pagination" => [
+    //         'total' => $assets->total(),
+    //         'per_page' => $assets->perPage(),
+    //         'current_page' => $assets->currentPage(),
+    //         'last_page' => $assets->lastPage(),
+    //         'next_page_url' => $assets->nextPageUrl(),
+    //         'prev_page_url' => $assets->previousPageUrl()
+    //     ]
+    // ]);
 }
 
     public function create(Request $request)
@@ -90,7 +110,11 @@ class AssetController extends Controller
             'received_date' => $request->received_date,
             'expiration_date' => $request->expiration_date,
             'status' => $request->status,
-            'image' => $request->image,
+        ]);
+
+        $image = ImageAsset::create([
+            'asset_id' => $Asset->id,
+            'path' => $request->image,
         ]);
 
         return response()->json([
@@ -126,11 +150,16 @@ class AssetController extends Controller
         if ($request->has('status')) {
         $asset->status = $request->status;
         }
-        if ($request->has('image')) {
-        $asset->image = $request->image;
-        }
 
         $asset->save();
+
+         if ($request->has('path')) {
+                $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
+                if($ImageAsset){
+                    $ImageAsset->path = $request->path;
+                    $ImageAsset->save();
+                }
+        }
 
         return response()->json([
             "message" => "Asset updated successfully"
@@ -141,9 +170,14 @@ class AssetController extends Controller
     $asset = Asset::find($id);
 
      $asset->delete();
+     $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
+            if ($ImageAsset) {
+                 $ImageAsset->delete();
+            }
 
-    return response()->json([
-        "message" => "Asset deleted successfully"
+
+      return response()->json([
+        'message' => 'Success delete Asset'
     ]);
 }
 
