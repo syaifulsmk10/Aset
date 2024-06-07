@@ -174,4 +174,70 @@ class ApplicantController extends Controller
         }
       
     }
+
+
+     public function detail($id)
+    {
+        $Applicant = Applicant::with(['asset', 'user', 'images'])->where('user_id', Auth::user()->id)->find($id);
+
+        $images = [];
+        foreach ($Applicant->images as $image) {
+            $images[] = $image->path;
+        }
+
+        $dataApplicant = [
+            "NameAsset" => $Applicant->asset->asset_name,
+            "Category" => $Applicant->asset->category->name,
+            "SubmissionDate" => $Applicant->submission_date,
+            "ExpiryDate" => $Applicant->expiry_date,
+            "UserApplicants" => $Applicant->user->name,
+            "type" => $Applicant->type,
+            "Images" => $images // Kumpulkan URL gambar dalam array
+        ];
+
+        return response()->json([
+            "dataApplicant" => $dataApplicant
+        ]);
+    }
+
+
+    public function update(Request $request, $id)
+    {
+
+        
+        $Applicant =    Applicant::find($id);
+       
+
+        if($Applicant && $Applicant->status == 1){
+            if ($request->has('asset_id')) {
+            $Applicant->asset_id = $request->asset_id;
+        }
+
+        if ($request->has('submission_date')) {
+            $Applicant->submission_date = $request->submission_date;
+        }
+
+        if ($request->has('expiry_date')) {
+            $Applicant->expiry_date = $request->expiry_date;
+        }
+
+        if ($request->has('type')) {
+            $Applicant->type = $request->type;
+        }
+        if ($request->has('path')) {
+            $Applicant->path = $request->path;
+        }
+
+        $Applicant->save();
+
+         return response()->json([
+            "message" => "Applicant updated successfully"
+        ]);
+        }else{
+            return response()->json([
+            "message" => "Cant Update"
+        ]);
+        }
+        
+    }   
 }
