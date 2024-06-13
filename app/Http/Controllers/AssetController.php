@@ -47,59 +47,34 @@ class AssetController extends Controller
 
     
 
-    
-    // Pagination
-    $perPage = $request->input('per_page', 10); // Default items per page is 10
-    $assets = $query->paginate($perPage);
+$perPage = $request->input('per_page', 10); // Default items per page is 10
+$assets = $query->paginate($perPage);
 
-        $assets->getCollection()->transform(function ($asset) {
-            return [
-               'asset_code' => $asset->asset_code,
-            'asset_name' => $asset->asset_name,
-            'category' => $asset->category->name,
-            'item_condition' => $asset->item_condition,
-            'price' => $asset->price,
-            'received_date' => $asset->received_date,
-            'expiration_date' => $asset->expiration_date,
-            'status' => $asset->status,
-            'image' => collect($asset->imageAssets)->pluck('path')
-        ];
-        });
+$assets->getCollection()->transform(function ($asset) {
+    return [
+        'asset_code' => $asset->asset_code,
+        'asset_name' => $asset->asset_name,
+        'category' => $asset->category->name,
+        'item_condition' => $asset->item_condition,
+        'price' => $asset->price,
+        'received_date' => $asset->received_date,
+        'expiration_date' => $asset->expiration_date,
+        'status' => $asset->status,
+        'image' => collect($asset->imageAssets)->pluck('path')
+    ];
+});
 
-        return $assets;
-
-
-        
-
-
-    
-
-    // foreach ($assets as $asset) {
-    //     $dataAsset[] = [
-          
-    //         'asset_code' => $asset->asset_code,
-    //         'asset_name' => $asset->asset_name,
-    //         'category' => $asset->category->name,
-    //         'item_condition' => $asset->item_condition,
-    //         'price' => $asset->price,
-    //         'received_date' => $asset->received_date,
-    //         'expiration_date' => $asset->expiration_date,
-    //         'status' => $asset->status,
-    //         'image' => $images
-    //     ];
-    // }
-
-    // return response()->json([
-    //     "data" => $dataAsset,
-    //     "pagination" => [
-    //         'total' => $assets->total(),
-    //         'per_page' => $assets->perPage(),
-    //         'current_page' => $assets->currentPage(),
-    //         'last_page' => $assets->lastPage(),
-    //         'next_page_url' => $assets->nextPageUrl(),
-    //         'prev_page_url' => $assets->previousPageUrl()
-    //     ]
-    // ]);
+return response()->json([
+    'data' => $assets->items(),
+    'pagination' => [
+        'total' => $assets->total(),
+        'per_page' => $assets->perPage(),
+        'current_page' => $assets->currentPage(),
+        'last_page' => $assets->lastPage(),
+        'next_page_url' => $assets->nextPageUrl(),
+        'prev_page_url' => $assets->previousPageUrl()
+    ]
+]);
 }
 
     public function create(Request $request)
@@ -137,6 +112,8 @@ class AssetController extends Controller
     public function update(Request $request, $id)
     {
         $asset = Asset::find($id);
+
+
 
         if ($request->has('asset_code')) {
         $asset->asset_code = $request->asset_code;

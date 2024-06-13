@@ -50,7 +50,7 @@ public function index(Request $request){
     //         ];
     // })->all();
 
-
+        $userData = [];
     foreach($users as $user){
         $userData[] = [
             "name" => $user->name,

@@ -45,7 +45,7 @@ class ApplicantController extends Controller
 
         $perpage = $request->input("per_page", 10);
         $applicants = $query->paginate($perpage);
-
+        $applicantdata = [];
         foreach($applicants as $applicant){
             $applicantdata[] = [
                 "name" => $applicant->asset->asset_name,
