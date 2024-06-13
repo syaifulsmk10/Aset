@@ -46,8 +46,7 @@ class ApplicantController extends Controller
         $perpage = $request->input("per_page", 10);
         $applicants = $query->paginate($perpage);
 
-        $applicantdata = [];
-        foreach ($applicants as $applicant) {
+        foreach($applicants as $applicant){
             $applicantdata[] = [
                 "name" => $applicant->asset->asset_name,
                 "kategori" => $applicant->asset->category->name,
@@ -56,7 +55,18 @@ class ApplicantController extends Controller
                 "tipe" => $applicant->type,
                 "status" => $applicant->status
             ];
-        } 
+        }
+
+        // $applicantdata = collect($applicants)->map(function ($applicant) {
+        //     return [
+        //         "name" => $applicant->asset->asset_name,
+        //         "kategori" => $applicant->asset->category->name,
+        //         "tanggal pengajuan" => $applicant->submission_date,
+        //         "tanggal masa habis" => $applicant->expiry_date,
+        //         "tipe" => $applicant->type,
+        //         "status" => $applicant->status
+        //     ];
+        // })->all();
 
         return response()->json([
             'applicantdata' => $applicantdata,
@@ -75,13 +85,19 @@ class ApplicantController extends Controller
     public function create(Request $request)
     {
 
-        $asset = Asset::find($request->asset_id);
-        // dd(is_null($asset));
-        
       
-       
+        // dd(is_null($asset));
+      $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+        $imagename = $request->file('path')->getClientOriginalName();
+        if(!$imagepath){
+            return response()->json([
+                "message" => "Failed to upload image"
+            ], 400);
+        }
+      
+         $asset = Asset::find($request->asset_id);
         if ($asset) {
-            if ($asset->status == '1' && $request->type == '1') {
+            if ($asset->status == 'Aktif' && $request->type == 1) {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
                     'asset_id' => $request->asset_id,
@@ -93,7 +109,7 @@ class ApplicantController extends Controller
 
                 $image = Image::create([
                     'applicant_id' => $applicant->id,
-                    'path' => $request->path,
+                    'path' => $imagename
                 ]);
 
                 $asset->update([
@@ -105,7 +121,7 @@ class ApplicantController extends Controller
                 ]);
             } 
 
-            elseif ($asset->status == '3' &&$request->type == '2') {
+            elseif ($asset->status == 'Dipinjamkan' &&$request->type == 2) {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
                     'asset_id' => $request->asset_id,
@@ -117,7 +133,7 @@ class ApplicantController extends Controller
 
                 $image = Image::create([
                     'applicant_id' => $applicant->id,
-                    'path' => $request->path,
+                    'path' => $imagename,
                 ]);
 
                  $asset->update([
@@ -144,26 +160,31 @@ class ApplicantController extends Controller
     {
         $Applicant = Applicant::find($id);
         $asset = Asset::find($Applicant->asset_id);
-        if ($Applicant->status == "2" || $Applicant->status == "3") {
+        $image = Image::where('applicant_id', $Applicant->id)->first();
+        if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
              $Applicant->update([
             "delete_user" => now(),
         ]);
             return response()->json([
             "message" =>  "success delete",
         ]);
-        }elseif($Applicant && $Applicant->status == 1 && $Applicant->type == 1){
+        }elseif($Applicant && $Applicant->status == "Belum_Disetujui" && $Applicant->type == "Peminjaman"){
               $Applicant->delete();
+            $image->delete();
             $asset->update([
                 'status' => 1,
             ]);
             return response()->json([
             "message" =>  "success delete",
                 ]);
-        }elseif($Applicant && $Applicant->type == "2" && $Applicant->status == "1"  ){
+        }elseif($Applicant && $Applicant->type == "Pengembalian" && $Applicant->status == "Belum_Disetujui"  ){
             $Applicant->delete();
+             $image->delete();
             $asset->update([
                 'status' => 3,
             ]);
+
+
             return response()->json([
             "message" =>  "success delete",
                 ]);
@@ -180,7 +201,11 @@ class ApplicantController extends Controller
     {
         $Applicant = Applicant::with(['asset', 'user', 'images'])->where('user_id', Auth::user()->id)->find($id);
 
-        $images = [];
+        // $images = collect($Applicant->image)->map(function ($image) {
+        //     return $image->path;
+        // })->all();
+
+         $images = [];
         foreach ($Applicant->images as $image) {
             $images[] = $image->path;
         }
@@ -208,7 +233,7 @@ class ApplicantController extends Controller
         $Applicant =    Applicant::find($id);
        
 
-        if($Applicant && $Applicant->status == 1){
+        if($Applicant && $Applicant->status == "Belum_Disetujui"){
             if ($request->has('asset_id')) {
             $Applicant->asset_id = $request->asset_id;
         }
@@ -227,13 +252,26 @@ class ApplicantController extends Controller
         
 
         $Applicant->save();
-
+        
         if ($request->has('path')) {
-                $image = Image::where('Applicant_id', $Applicant->id)->first();
-                if($image){
-                    $image->path = $request->path;
-                    $image->save();
-                }
+            $image = Image::where('Applicant_id', $Applicant->id)->first();
+            $ImagePath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+            $ImageName = $request->file('path')->getClientOriginalName();
+
+              if(!$ImagePath){
+                return response()->json([
+                    "message" => "failed to upload image"
+                ]);
+            }
+
+            if($image){
+                $image->update([
+                    "path" => $ImageName,
+                ]);
+            }
+            ;
+
+            
         }
 
          return response()->json([

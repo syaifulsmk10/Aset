@@ -69,6 +69,9 @@ class AssetController extends Controller
         return $assets;
 
 
+        
+
+
     
 
     // foreach ($assets as $asset) {
@@ -101,6 +104,15 @@ class AssetController extends Controller
 
     public function create(Request $request)
     {
+        $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+        $imagename = $request->file('path')->getClientOriginalName();
+
+         if(!$imagepath){
+            return response()->json([
+                "message" => "Failed to upload image"
+            ], 400);
+        }
+
         $Asset = Asset::create([
             'asset_code' => $request->asset_code,
             'asset_name' => $request->asset_name,
@@ -114,7 +126,7 @@ class AssetController extends Controller
 
         $image = ImageAsset::create([
             'asset_id' => $Asset->id,
-            'path' => $request->image,
+            'path' => $imagename,
         ]);
 
         return response()->json([
@@ -153,12 +165,30 @@ class AssetController extends Controller
 
         $asset->save();
 
-         if ($request->has('path')) {
-                $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
-                if($ImageAsset){
-                    $ImageAsset->path = $request->path;
-                    $ImageAsset->save();
-                }
+
+  
+        if ($request->hasFile('path')) {
+            $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
+
+
+
+            $ImagePath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+            $ImageName = $request->file('path')->getClientOriginalName();
+
+
+            if(!$ImagePath){
+                return response()->json([
+                    "message" => "failed to upload image"
+                ]);
+            }
+
+            if($ImageAsset){
+                $ImageAsset->update([
+                    "path" => $ImageName,
+                ]);
+            }
+            ;
+
         }
 
         return response()->json([

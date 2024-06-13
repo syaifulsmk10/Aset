@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StatusApplicant;
+use App\Enums\Type;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,5 +38,16 @@ class Applicant extends Model
     public function getStatusApplicantAttribute($value)
     {
         return StatusApplicant::fromValue((int) $value)->key;
-    }   
+    }
+
+    public function getTypeAttribute($value)
+    {
+        return Type::fromValue((int) $value)->key;
+    }
+
+    // Tambahkan accessor untuk status
+    public function getStatusAttribute($value)
+    {
+        return $this->getStatusApplicantAttribute($value);
+    }  
 }

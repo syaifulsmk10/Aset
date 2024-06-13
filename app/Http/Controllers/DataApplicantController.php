@@ -55,8 +55,22 @@ class DataApplicantController extends Controller
     $perpage = $request->input('per_page', 10);
     $applicants = $query->paginate($perpage);
 
-    $dataApplicant = [];
-    foreach ($applicants as $applicant) {
+    // $dataApplicant = collect($applicants)->map(function($applicant){
+    //     $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
+    //     $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
+    //     $userName = $applicant->user ? $applicant->user->name : null;
+
+    //     return [
+    //         "NameAsset" => $assetName,
+    //         "Category" => $categoryName,
+    //         "SubmissionDate" => $applicant->submission_date,
+    //         "ExpiryDate" => $applicant->expiry_date,
+    //         "UserApplicants" => $userName,
+    //         "type" => $applicant->type
+    //     ];
+    // })->all();
+        $dataApplicant = [];
+     foreach ($applicants as $applicant) {
         $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
         $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
         $userName = $applicant->user ? $applicant->user->name : null;
@@ -70,6 +84,8 @@ class DataApplicantController extends Controller
             "type" => $applicant->type
         ];
     }
+
+
 
     return response()->json([
         "dataApplicant" => $dataApplicant,
@@ -89,6 +105,11 @@ class DataApplicantController extends Controller
     public function detail($id)
     {
         $Applicant = Applicant::with(['asset', 'user', 'images'])->find($id);
+
+        // $images = collect($Applicant->images)->map(function($image){
+        //     return $image->path;
+        // })->all();
+
 
         $images = [];
         foreach ($Applicant->images as $image) {
@@ -125,11 +146,11 @@ class DataApplicantController extends Controller
         $Asset = Asset::find($Applicant->asset_id);
 
         if ($Asset) {
-            if ($Applicant->type == 1) {
+            if ($Applicant->type == "Peminjaman") {
                 $Asset->update([
                     'status' => 3,
                 ]);
-            } elseif ($Applicant->type == 2) {
+            } elseif ($Applicant->type == "Pengembalian") {
                 $Asset->update([
                     'status' => 1,
                 ]);
@@ -162,11 +183,11 @@ class DataApplicantController extends Controller
             $Asset = Asset::find($Applicant->asset_id);
 
          if ($Asset) {
-            if ($Applicant->type == 1) {
+            if ($Applicant->type == "Peminjaman") {
                 $Asset->update([
                     'status' => 1,
                 ]);
-            } elseif ($Applicant->type == 2) {
+            } elseif ($Applicant->type == "Pengembalian") {
                 $Asset->update([
                     'status' => 3,
                 ]);
@@ -196,7 +217,7 @@ class DataApplicantController extends Controller
     public function delete($id)
     {
         $Applicant = Applicant::find($id);
-        if ($Applicant->status == 2 || $Applicant->status == 3) {
+        if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
             $Applicant->update([
                 "delete_admin" => now(),
             ]);

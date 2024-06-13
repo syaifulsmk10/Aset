@@ -40,7 +40,16 @@ public function index(Request $request){
     $perpage = $request->input('per_page', 10);
     $users = $query->paginate($perpage);
 
-    $userData = [];
+    // $user_data = collect($users)->map(function($user){
+    //         return  [
+    //         "name" => $user->name,
+    //         "nip" => $user->Employee->nip,
+    //         "email" => $user->email,
+    //         "department" => $user->Employee->department->name,
+    //         "position" => $user->Employee->position->name
+    //         ];
+    // })->all();
+
 
     foreach($users as $user){
         $userData[] = [
@@ -158,8 +167,9 @@ public function index(Request $request){
             ->with(['user:id,name,email', 'department:id,name', 'position:id,name'])
             ->get();
 
-          
-        foreach($employees as $employes){
+        
+
+     foreach($employees as $employes){
             $result[] = [
                 'employee_id' => $employes->id,
                 'nip' => $employes->nip,
@@ -173,8 +183,7 @@ public function index(Request $request){
 
 
         return response()->json($result);
-
-    }
+}
 
     public function reset(){
         Employee::truncate();
