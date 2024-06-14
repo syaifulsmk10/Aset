@@ -73,16 +73,45 @@ class DatabaseSeeder extends Seeder
     ]);
 
     Category::create([
-        "name" => "elektronik"
+        "name" => "Peralatan IT"
     ]);
 
     category::create([
-        "name" => "transport"
+        "name" => "Inventaris"
     ]);
 
+    category::create([
+        "name" => "Peralatan Kantor"
+    ]);
+
+    category::create([
+        "name" => "Perabotan"
+    ]);
+
+    category::create([
+        "name" => "Perangkat Elektronik Konsumen"
+    ]);
+
+    category::create([
+        "name" => "Peralatan Medis"
+    ]);
+
+    category::create([
+        "name" => "Koleksi Seni dan Barang Koleksi"
+    ]);
+
+    category::create([
+        "name" => "Peralatan Olahraga dan Rekreasi"
+    ]);
+
+    category::create([
+        "name" => "Keamanan dan Perlindungan"
+    ]);
+
+    category::create([
+        "name" => "Peralatan Komunikasi"
+    ]);
    
-
-
 
     Asset::create([
         "asset_code"  => 111,
