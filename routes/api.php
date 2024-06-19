@@ -32,6 +32,7 @@ Route::get('/register', [UserController::class, 'register']); //done
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);  //done
+    Route::post('/update/{id}', [UserController::class, 'update']); //done
     Route::get('/dashboard', [DashboardController::class, 'getDashboardData']); //done
   
     

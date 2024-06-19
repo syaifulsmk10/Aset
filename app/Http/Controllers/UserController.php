@@ -76,21 +76,42 @@ class UserController extends Controller
         return response()->json([
             'message' => 'success',
             'data' => [
-                'name' => $user->name,
-                'role' => 'admin',
-            ]
-        ], 200);
-    } else {
+                'foto' => $user->foto,
+                'username' => $user->username,
+                'email' => $user->email,
+                'password' => $user->plaintext_password 
 
-        return response()->json([
-            'message' => 'success',
-            'data' => [
-                'name' => $user->name,
-                'role' => 'user'
             ]
         ], 200);
-        }
+    } else{
+        return response()->json([
+            'message' => 'Failed read',
+        ], 400);
+    }
     }
 
 
+    public function update($id, Request $request){
+        $user = user::find($id)->first();
+
+        if($user->role_id == 1){
+            if($request->has("username")){
+            $user->username = $request->username;
+        }
+
+            if($request->has("email")){
+            $user->email = $request->email;
+        }
+
+            if($request->has("password")){
+            $user->password = $request->password;
+        }
+
+        $user->save();
+        }
+
+        return response()->json([
+            "message" => "success update user"
+        ]);
+    }
 }
