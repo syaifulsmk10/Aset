@@ -15,20 +15,21 @@ class DashboardController extends Controller
         $totalActiveAssets = Asset::where('status', 1)->count();
         $totalDamagedAssets = Asset::where('item_condition', 3)->count();
         $totalLoanedAssets = Asset::where('status', 3)->count();
-        $nearestReturn = Applicant::where('expiry_date', '>=', Carbon::now())->where("type",1 )
-            ->orderBy('expiry_date', 'asc')
-            ->first();
+        $nearestReturns = Applicant::where('expiry_date', '>=', Carbon::now())
+    ->where('type', 1)
+    ->orderBy('expiry_date', 'asc')
+    ->get();
             
 
-        $datanearestReturn = [];
-        if($nearestReturn){
-            $datanearestReturn[] = [
-                'name' => $nearestReturn->user->name,
-                'assetname' => $nearestReturn->asset->asset_name,
-                'expiry_date' => $nearestReturn->expiry_date
-            ];
-        } 
+      $datanearestReturns = [];
 
+foreach ($nearestReturns as $nearestReturn) {
+    $datanearestReturns[] = [
+        'name' => $nearestReturn->user->name,
+        'assetname' => $nearestReturn->asset->asset_name,
+        'expiry_date' => $nearestReturn->expiry_date,
+    ];
+}
         
 
          $categories = Category::with('assets')->get();
@@ -53,7 +54,7 @@ class DashboardController extends Controller
             'total_active_assets' => $totalActiveAssets,
             'total_damaged_assets' => $totalDamagedAssets,
             'total_loaned_assets' => $totalLoanedAssets,
-            'datanearestReturn' => $datanearestReturn,
+            'datanearestReturn' => $datanearestReturns,
             'data' => $data
             
         ]);

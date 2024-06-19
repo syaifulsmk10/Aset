@@ -85,19 +85,21 @@ class ApplicantController extends Controller
     public function create(Request $request)
     {
 
-      
-        // dd(is_null($asset));
-      $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+
+        $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
         $imagename = $request->file('path')->getClientOriginalName();
-        if(!$imagepath){
+
+         if(!$imagepath){
             return response()->json([
                 "message" => "Failed to upload image"
             ], 400);
         }
+
       
          $asset = Asset::find($request->asset_id);
         if ($asset) {
-            if ($asset->status == 'Aktif' && $request->type == 1) {
+           
+            if ($asset->status == 'Aktif' && $request->type == 1 && $asset->item_condition == "Baik" ) {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
                     'asset_id' => $request->asset_id,

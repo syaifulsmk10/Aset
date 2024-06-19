@@ -99,10 +99,20 @@ return response()->json([
             'status' => $request->status,
         ]);
 
-        $image = ImageAsset::create([
-            'asset_id' => $Asset->id,
-            'path' => $imagename,
-        ]);
+       
+          if ($request->hasfile('path')) {
+
+
+            // Simpan informasi gambar di database
+            ImageAsset::create([
+                'asset_id' => $Asset->id,
+                'path' => $imagename,
+            ]);
+    } else {
+        return response()->json([
+            "message" => "Failed to upload images"
+        ], 400);
+    }
 
         return response()->json([
             "message" => "sucess add asset"
