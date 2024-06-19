@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('bio')->nullable();
             $table->string('url')->nullable();
             $table->foreignId('role_id');
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }
