@@ -194,6 +194,23 @@ public function index(Request $request){
         ]);
     }
     
+    public function detail($id){
+        $Employee = User::find($id);
+        $Employeedata = [];
+             $Employeedata[] = [
+             "name" => $Employee->name,
+            "nip" => $Employee->Employee->nip,
+            "email" => $Employee->email,
+            "department" => $Employee->Employee->department->name,
+            "position" => $Employee->Employee->position->name
+            ];
+
+         return response()->json([
+        'message' => $Employeedata
+    ]);
+
+    }
+    
 
    
 }

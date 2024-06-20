@@ -38,7 +38,7 @@ class User extends Authenticatable
     ];
 
      protected $fillable = [
-        'name', 'username', 'email', 'password', 'nip', 'bio', 'url', 'role_id',
+        'name', 'username', 'email', 'password', 'nip', 'bio', 'url', 'role_id', 'foto',
     ];
 
     public function role()

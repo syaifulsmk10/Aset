@@ -107,8 +107,41 @@ class UserController extends Controller
             $user->password = $request->password;
         }
 
-        $user->save();
+             $user->save();
+
+      
+
+         if ($request->hasFile('foto')) {
+
+
+
+            $Foto = $request->file('foto')->move(public_path(), $request->file('foto')->getClientOriginalName());
+            $Photos = $request->file('foto')->getClientOriginalName();
+
+
+
+            if(!$Foto){
+                return response()->json([
+                    "message" => "failed to upload image"
+                ]);
+            }
+
+            if($user){
+                $user->update([
+                    "foto" => $Photos,
+                ]);
+            }
+            ;
+
         }
+
+            
+
+   
+
+        
+        }
+        
 
         return response()->json([
             "message" => "success update user"

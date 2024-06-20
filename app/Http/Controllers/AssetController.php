@@ -60,7 +60,9 @@ $assets->getCollection()->transform(function ($asset) {
         'received_date' => $asset->received_date,
         'expiration_date' => $asset->expiration_date,
         'status' => $asset->status,
-        'image' => collect($asset->imageAssets)->pluck('path')
+        'image' => collect($asset->imageAssets)->map(function ($imageAsset) {
+            return env('APP_URL') . $imageAsset->path; 
+        })
     ];
 });
 
@@ -197,5 +199,29 @@ return response()->json([
         'message' => 'Success delete Asset'
     ]);
 }
+
+
+    public function detail($id){
+        $Asset = Asset::find($id);
+        $Assetdata = [];
+             $Assetdata[] = [
+            'asset_code' => $Asset->asset_code,
+            'asset_name' => $Asset->asset_name,
+            'category_id' => $Asset->category_id,
+            'item_condition' => $Asset->item_condition,
+            'price' => $Asset->price,
+            'received_date' => $Asset->received_date,
+            'expiration_date' => $Asset->expiration_date,
+            'status' => $Asset->status,
+            'image' => collect($Asset->imageAssets)->map(function ($imageAsset) {
+            return env('APP_URL') . $imageAsset->path; 
+        })
+            ];
+
+         return response()->json([
+        'message' => $Assetdata
+    ]);
+
+    }
 
 }
