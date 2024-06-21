@@ -81,14 +81,14 @@ return response()->json([
 
     public function create(Request $request)
     {
-        $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
-        $imagename = $request->file('path')->getClientOriginalName();
+        // $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
+        // $imagename = $request->file('path')->getClientOriginalName();
 
-         if(!$imagepath){
-            return response()->json([
-                "message" => "Failed to upload image"
-            ], 400);
-        }
+        //  if(!$imagepath){
+        //     return response()->json([
+        //         "message" => "Failed to upload image"
+        //     ], 400);
+        // }
 
         $Asset = Asset::create([
             'asset_code' => $request->asset_code,
@@ -100,31 +100,34 @@ return response()->json([
             'expiration_date' => $request->expiration_date,
             'status' => $request->status,
         ]);
+        if ($request->hasFile('path')) {
+    $images = $request->file('path');
+    $imagePaths = [];
 
-       
-          if ($request->hasfile('path')) {
-
-
-            // Simpan informasi gambar di database
-            ImageAsset::create([
-                'asset_id' => $Asset->id,
-                'path' => $imagename,
-            ]);
-    } else {
-        return response()->json([
-            "message" => "Failed to upload images"
-        ], 400);
+    foreach ($images as $image) {
+        $imageName = $image->getClientOriginalName();
+        $image->move(public_path('path'), $imageName);
+        $imagePaths[] = $imageName;
     }
 
-        return response()->json([
-            "message" => "sucess add asset"
-        ]);
+    ImageAsset::create([
+        'asset_id' => $Asset->id,
+        'path' => json_encode($imagePaths),
+    ]);
+
+    return response()->json([
+        "message" => "Success Add Applicant"
+    ], 200);
+} else {
+    return response()->json(['error' => 'No file found'], 400);
+}
+
+   
     }
 
     public function update(Request $request, $id)
     {
-        $asset = Asset::find($id);
-
+       $asset = Asset::find($id);
 
 
         if ($request->has('asset_code')) {
@@ -153,37 +156,43 @@ return response()->json([
         }
 
         $asset->save();
+      
+    if ($request->hasFile('path')) {
+        $images = $request->file('path');
+        $imagePaths = [];
 
 
-  
-        if ($request->hasFile('path')) {
-            $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
-
-
-
-            $ImagePath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
-            $ImageName = $request->file('path')->getClientOriginalName();
-
-
-            if(!$ImagePath){
-                return response()->json([
-                    "message" => "failed to upload image"
-                ]);
+        $oldImages = ImageAsset::where('asset_id', $asset->id)->first();
+        if ($oldImages) {
+            $oldImagePaths = json_decode($oldImages->path, true);
+            foreach ($oldImagePaths as $oldImagePath) {
+                $oldImageFullPath = public_path('path/' . $oldImagePath);
+                if (file_exists($oldImageFullPath)) {
+                    unlink($oldImageFullPath);
+                }
             }
-
-            if($ImageAsset){
-                $ImageAsset->update([
-                    "path" => $ImageName,
-                ]);
-            }
-            ;
-
+            $oldImages->delete();
         }
 
-        return response()->json([
-            "message" => "Asset updated successfully"
+        foreach ($images as $image) {
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('path'), $imageName);
+            $imagePaths[] = $imageName;
+        }
+
+        ImageAsset::create([
+            'asset_id' => $asset->id,
+            'path' => json_encode($imagePaths),
         ]);
+
+        return response()->json([
+            "message" => "Success Update Applicant"
+        ], 200);
+    } else {
+        return response()->json(['error' => 'No file found'], 400);
     }
+
+}
 
     public function delete($id){
     $asset = Asset::find($id);

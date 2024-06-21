@@ -70,7 +70,7 @@ class UserController extends Controller
 
     public function getUser(Request $request)
         {
-            $user = $request->user();
+        $user = user::where('id', Auth::user()->id)->first();
                
         if ($user->role_id == 1) {
         return response()->json([
@@ -91,8 +91,8 @@ class UserController extends Controller
     }
 
 
-    public function update($id, Request $request){
-        $user = user::find($id)->first();
+    public function update(Request $request){
+         $user = user::where('id', Auth::user()->id)->first();
 
         if($user->role_id == 1){
             if($request->has("username")){

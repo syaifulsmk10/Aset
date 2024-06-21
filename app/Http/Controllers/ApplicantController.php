@@ -86,14 +86,7 @@ class ApplicantController extends Controller
     {
 
 
-        $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
-        $imagename = $request->file('path')->getClientOriginalName();
-
-         if(!$imagepath){
-            return response()->json([
-                "message" => "Failed to upload image"
-            ], 400);
-        }
+       
 
       
          $asset = Asset::find($request->asset_id);
@@ -108,13 +101,23 @@ class ApplicantController extends Controller
                     'type' => $request->type,
                     'status' => 1,
                 ]);
+    
 
-                $image = Image::create([
-                    'applicant_id' => $applicant->id,
-                    'path' => $imagename
-                ]);
-
-                $asset->update([
+            if ($request->hasFile('path')) {
+                $images = $request->file('path');
+                foreach ($images as $image) {
+                     $imageName = $image->getClientOriginalName();
+                     $image->move(public_path('path'), $imageName);
+                     image::create([
+                         'applicant_id' => $applicant->id,
+                         'path' => $imageName,
+                     ]);
+                }
+        } else {
+         return response()->json(['error' => 'No file found'], 400);
+            }  
+             
+            $asset->update([
                     "status" => "7"
                 ]);
 
@@ -133,10 +136,21 @@ class ApplicantController extends Controller
                     'status' => 1,
                 ]);
 
-                $image = Image::create([
+                 if ($request->hasFile('path')) {
+            $images = $request->file('path');
+
+
+            foreach ($images as $image) {
+                $imageName = $image->getClientOriginalName();
+                $image->move(public_path('path'), $imageName);
+                image::create([
                     'applicant_id' => $applicant->id,
-                    'path' => $imagename,
-                ]);
+                    'path' => $imageName,
+            ]);
+                }
+            } else {
+                return response()->json(['error' => 'No file found'], 400);
+            }   
 
                  $asset->update([
                     "status" => "7"
@@ -232,13 +246,13 @@ class ApplicantController extends Controller
     {
 
         
-        $Applicant =    Applicant::find($id);
+        $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        $asset = Asset::find($request->asset_id);
+
        
 
         if($Applicant && $Applicant->status == "Belum_Disetujui"){
-            if ($request->has('asset_id')) {
-            $Applicant->asset_id = $request->asset_id;
-        }
+        
 
         if ($request->has('submission_date')) {
             $Applicant->submission_date = $request->submission_date;
@@ -248,9 +262,7 @@ class ApplicantController extends Controller
             $Applicant->expiry_date = $request->expiry_date;
         }
 
-        if ($request->has('type')) {
-            $Applicant->type = $request->type;
-        }
+
         
 
         $Applicant->save();
@@ -286,4 +298,24 @@ class ApplicantController extends Controller
         }
         
     }   
+
+    public function detil($id){
+        $Applicant =    Applicant::find($id);
+
+        if ($Applicant && $Applicant->status == "Belum_Disetujui") {
+             $Applicantdata = [];
+             $Applicantdata[] = [
+                 "name" => $Applicant->asset->asset_name,
+                "kategori" => $Applicant->asset->category->name,
+                "tanggal pengajuan" => $Applicant->submission_date,
+                "tanggal masa habis" => $Applicant->expiry_date,
+                "tipe" => $Applicant->type,
+                "status" => $Applicant->status
+            ];
+
+         return response()->json([
+        'message' => $Applicantdata
+    ]);
+        }
+    }
 }

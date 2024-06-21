@@ -32,7 +32,7 @@ Route::get('/register', [UserController::class, 'register']); //done
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detail', [UserController::class, 'getUser']);  //done
-    Route::post('/update/{id}', [UserController::class, 'update']); //done
+    Route::post('/update', [UserController::class, 'update']); //done
     Route::get('/dashboard', [DashboardController::class, 'getDashboardData']); //done
   
     
@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('/applicant')->group(function () {
     Route::get('/index', [ApplicantController::class, 'index']); //done
     Route::get('/index/{id}', [ApplicantController::class, 'detail']); //done 
+    Route::get('/detail/{id}', [ApplicantController::class, 'detil']);
     Route::post('/create', [ApplicantController::class, 'create']); //done
     Route::post('/update/{id}', [ApplicantController::class, 'update']); //done 
     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);  //done
