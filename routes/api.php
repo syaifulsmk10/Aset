@@ -69,7 +69,7 @@ Route::prefix('/aset')->group(function () {
     Route::post('/create', [AssetController::class, 'create']);  //done
     Route::post('/update/{id}', [AssetController::class, 'update']); //done
     Route::delete('/delete/{id}', [AssetController::class, 'delete']); //done
-});
+});  
 
 
 Route::prefix('/category')->group(function () {

@@ -160,11 +160,7 @@ class DatabaseSeeder extends Seeder
     ]);
 
 
-    image::create([
-        "applicant_id" => 1,
-        "path" => "image.jpg",
-        
-    ]);
+  
 
 
 

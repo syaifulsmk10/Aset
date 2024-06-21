@@ -40,7 +40,8 @@ class Asset extends Model
 
     public function getImageAttribute($value)
         {
-            return env('APP_URL') . $value;
+            $encoded_value = urlencode($value);
+    return env('APP_URL') . $encoded_value;
         }
 
         

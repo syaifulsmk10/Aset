@@ -86,10 +86,7 @@ class ApplicantController extends Controller
     {
 
 
-       
-
-      
-         $asset = Asset::find($request->asset_id);
+        $asset = Asset::find($request->asset_id);
         if ($asset) {
            
             if ($asset->status == 'Aktif' && $request->type == 1 && $asset->item_condition == "Baik" ) {
@@ -101,25 +98,34 @@ class ApplicantController extends Controller
                     'type' => $request->type,
                     'status' => 1,
                 ]);
+
+                  $asset->status = 7;
+                   $asset->save();
     
 
-            if ($request->hasFile('path')) {
-                $images = $request->file('path');
-                foreach ($images as $image) {
-                     $imageName = $image->getClientOriginalName();
-                     $image->move(public_path('path'), $imageName);
-                     image::create([
-                         'applicant_id' => $applicant->id,
-                         'path' => $imageName,
-                     ]);
-                }
-        } else {
-         return response()->json(['error' => 'No file found'], 400);
-            }  
-             
-            $asset->update([
-                    "status" => "7"
-                ]);
+             if ($request->hasFile('path')) {
+    $images = $request->file('path');
+    $imagePaths = [];
+
+    foreach ($images as $image) {
+        $imageName = $image->getClientOriginalName();
+        $image->move(public_path('path'), $imageName);
+        $imagePaths[] = $imageName;
+    }
+
+    image::create([
+        'applicant_id' => $applicant->id,
+        'path' => json_encode($imagePaths),
+    ]);
+
+
+    return response()->json([
+        "message" => "Success Add Applicant"
+    ], 200);
+} 
+
+
+           
 
                 return response()->json([
                     'message' => 'Peminjaman berhasil'
@@ -136,25 +142,29 @@ class ApplicantController extends Controller
                     'status' => 1,
                 ]);
 
-                 if ($request->hasFile('path')) {
-            $images = $request->file('path');
+               if ($request->hasFile('path')) {
+    $images = $request->file('path');
+    $imagePaths = [];
+
+    foreach ($images as $image) {
+        $imageName = $image->getClientOriginalName();
+        $image->move(public_path('path'), $imageName);
+        $imagePaths[] = $imageName;
+    }
+
+    image::create([
+        'applicant_id' => $applicant->id,
+        'path' => json_encode($imagePaths),
+    ]);
+
+    return response()->json([
+        "message" => "Success Add Applicant"
+    ], 200);
+} 
 
 
-            foreach ($images as $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move(public_path('path'), $imageName);
-                image::create([
-                    'applicant_id' => $applicant->id,
-                    'path' => $imageName,
-            ]);
-                }
-            } else {
-                return response()->json(['error' => 'No file found'], 400);
-            }   
-
-                 $asset->update([
-                    "status" => "7"
-                ]);
+                 $asset->status = 7;
+            $asset->save();
 
 
                 return response()->json([
@@ -247,12 +257,38 @@ class ApplicantController extends Controller
 
         
         $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
-        $asset = Asset::find($request->asset_id);
+        $oldAsset = Asset::find($Applicant->asset_id);
 
+        
        
 
-        if($Applicant && $Applicant->status == "Belum_Disetujui"){
-        
+        if($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman'){
+
+        if ($request->has('type') && $request->type != 1) {
+        return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+            }   
+            
+            if ($request->has('asset_id')) {
+            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->first();
+               if(!$newAsset){
+                     return response()->json(['message' => 'item_Condition'], 400);
+               };
+                if($newAsset && $Applicant->asset_id == $request->asset_id ){
+                    $newAsset->status = 7;
+                    $newAsset->save();
+                };
+
+                 if ($newAsset  && $Applicant->asset_id != $request->asset_id ) {
+
+                    $newAsset->status = 7;
+                    $newAsset->save();
+                    $oldAsset->status = 1;
+                    $oldAsset->save();
+                    $Applicant->asset_id = $request->asset_id;
+                }
+                ;
+            }
+
 
         if ($request->has('submission_date')) {
             $Applicant->submission_date = $request->submission_date;
@@ -261,36 +297,111 @@ class ApplicantController extends Controller
         if ($request->has('expiry_date')) {
             $Applicant->expiry_date = $request->expiry_date;
         }
-
-
         
-
         $Applicant->save();
         
-        if ($request->has('path')) {
-            $image = Image::where('Applicant_id', $Applicant->id)->first();
-            $ImagePath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
-            $ImageName = $request->file('path')->getClientOriginalName();
+       if ($request->hasFile('path')) {
+        $images = $request->file('path');
+        $imagePaths = [];
 
-              if(!$ImagePath){
-                return response()->json([
-                    "message" => "failed to upload image"
-                ]);
+
+        $oldImages = image::where('applicant_id', $Applicant->id)->first();
+        if ($oldImages) {
+            $oldImagePaths = json_decode($oldImages->path, true);
+            foreach ($oldImagePaths as $oldImagePath) {
+                $oldImageFullPath = public_path('path/' . $oldImagePath);
+                if (file_exists($oldImageFullPath)) {
+                    unlink($oldImageFullPath);
+                }
             }
-
-            if($image){
-                $image->update([
-                    "path" => $ImageName,
-                ]);
-            }
-            ;
-
-            
+            $oldImages->delete();
         }
+
+        foreach ($images as $image) {
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('path'), $imageName);
+            $imagePaths[] = $imageName;
+        }
+
+        image::create([
+            'applicant_id' => $Applicant->id,
+            'path' => json_encode($imagePaths),
+        ]);
+
+        return response()->json([
+            "message" => "Success Update Asset"
+        ], 200);
+    } 
+
 
          return response()->json([
             "message" => "Applicant updated successfully"
         ]);
+        }
+        
+         if($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dipinjamkan'){
+
+           
+        if ($request->has('type') && $request->type != 2 ) {
+        return response()->json(['error' => 'type cannot be changed.'], 400);
+            }   
+            
+        if ($request->has('asset_id')) {
+               $newAsset = Asset::find($request->asset_id);
+
+                 if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
+            return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+                }
+                ;
+            }
+
+             if(!$newAsset){
+                     return response()->json(['message' => 'item_Condition'], 400);
+               };
+
+
+        if ($request->has('submission_date')) {
+            $Applicant->submission_date = $request->submission_date;
+        }
+
+        if ($request->has('expiry_date')) {
+            $Applicant->expiry_date = $request->expiry_date;
+        }
+        
+        $Applicant->save();
+        
+       if ($request->hasFile('path')) {
+        $images = $request->file('path');
+        $imagePaths = [];
+
+
+        $oldImages = image::where('applicant_id', $Applicant->id)->first();
+        if ($oldImages) {
+            $oldImagePaths = json_decode($oldImages->path, true);
+            foreach ($oldImagePaths as $oldImagePath) {
+                $oldImageFullPath = public_path('path/' . $oldImagePath);
+                if (file_exists($oldImageFullPath)) {
+                    unlink($oldImageFullPath);
+                }
+            }
+            $oldImages->delete();
+        }
+
+        foreach ($images as $image) {
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('path'), $imageName);
+            $imagePaths[] = $imageName;
+        }
+
+        image::create([
+            'applicant_id' => $Applicant->id,
+            'path' => json_encode($imagePaths),
+        ]);
+
+        return response()->json([
+            "message" => "Success Update Asset"
+        ], 200);
+    } 
         }else{
             return response()->json([
             "message" => "Cant Update"

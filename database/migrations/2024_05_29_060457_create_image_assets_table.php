@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('image_assets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_id')->onDelete("cascade");
-             $table->json('path');
+            $table->string('path');
             $table->timestamps();
         });
     }

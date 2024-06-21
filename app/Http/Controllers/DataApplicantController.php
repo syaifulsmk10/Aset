@@ -205,9 +205,14 @@ class DataApplicantController extends Controller
     }
 
    public function reset(){
+    $assets = Asset::all();
      Image::truncate();
     Applicant::truncate();
-   
+     foreach ($assets as $asset) {
+        $asset->update([
+            "status" => 1,
+        ]);
+    }
 
     return response()->json([
         "message" => "Success Reset Applicant"

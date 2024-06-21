@@ -51,6 +51,7 @@ $perPage = $request->input('per_page', 10); // Default items per page is 10
 $assets = $query->paginate($perPage);
 
 $assets->getCollection()->transform(function ($asset) {
+    
     return [
         'asset_code' => $asset->asset_code,
         'asset_name' => $asset->asset_name,
@@ -60,9 +61,9 @@ $assets->getCollection()->transform(function ($asset) {
         'received_date' => $asset->received_date,
         'expiration_date' => $asset->expiration_date,
         'status' => $asset->status,
-        'image' => collect($asset->imageAssets)->map(function ($imageAsset) {
-            return env('APP_URL') . $imageAsset->path; 
-        })
+        'image' => $asset->imageAssets->map(function ($imageAsset) {
+            return env('APP_URL') . $imageAsset->path;
+        })->all()
     ];
 });
 
@@ -116,7 +117,7 @@ return response()->json([
     ]);
 
     return response()->json([
-        "message" => "Success Add Applicant"
+        "message" => "Success Add Asset"
     ], 200);
 } else {
     return response()->json(['error' => 'No file found'], 400);
@@ -186,7 +187,7 @@ return response()->json([
         ]);
 
         return response()->json([
-            "message" => "Success Update Applicant"
+            "message" => "Success Update Asset"
         ], 200);
     } else {
         return response()->json(['error' => 'No file found'], 400);
