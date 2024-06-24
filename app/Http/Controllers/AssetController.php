@@ -62,8 +62,12 @@ $assets->getCollection()->transform(function ($asset) {
         'expiration_date' => $asset->expiration_date,
         'status' => $asset->status,
         'image' => $asset->imageAssets->map(function ($imageAsset) {
-            return env('APP_URL') . $imageAsset->path;
-        })->all()
+            $data = json_decode($imageAsset->path, true);
+            
+            return array_values(
+                array_map(fn ($path) => env('APP_URL') . $path, $data)
+            );
+        })->flatten(1)->all()
     ];
 });
 

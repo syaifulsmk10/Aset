@@ -123,7 +123,13 @@ class DataApplicantController extends Controller
             "ExpiryDate" => $Applicant->expiry_date,
             "UserApplicants" => $Applicant->user->name,
             "type" => $Applicant->type,
-            "Images" => $images // Kumpulkan URL gambar dalam array
+        "Images" => $Applicant->images->map(function ($image) {
+        $data = json_decode($image->path, true);
+        
+        return array_values(
+            array_map(fn ($path) => env('APP_URL') . $path, $data)
+        );
+    })->flatten(1)->all()// Kumpulkan URL gambar dalam array
         ];
 
         return response()->json([
@@ -158,11 +164,11 @@ class DataApplicantController extends Controller
         }
 
         return response()->json([
-            "message" => "Terima Peminjam Berhasil"
+            "message" => "Accept Applicant Successful "
         ]);
     } else {
         return response()->json([
-            "message" => "Peminjam tidak dapat diterima karena mereka sudah diterima atau ditolak sebelumnya."
+            "message" => "Applicant cannot be accepted because they have been accepted or rejected previously."
         ], 400);
     }
 }

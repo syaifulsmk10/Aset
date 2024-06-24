@@ -185,14 +185,25 @@ public function index(Request $request){
         return response()->json($result);
 }
 
-    public function reset(){
-        Employee::truncate();
-        User::truncate();
+  public function reset() {
+    $users = User::where('role_id', 2)->get();
 
-         return response()->json([
-            "message" => "employee reset success"
-        ]);
+    foreach($users as $user) {
+        $employees = Employee::where('user_id', $user->id)->get();
+        
+        foreach($employees as $employee) {
+            $employee->delete();
+        }
+
+        $user->delete();
     }
+
+    
+
+    return response()->json([
+        "message" => "employee reset success"
+    ]);
+}
     
     public function detail($id){
         $Employee = User::find($id);

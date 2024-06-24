@@ -15,4 +15,8 @@ class ImageAsset extends Model
     {
         return $this->belongsTo(Asset::class);
     }
+
+    public function getPathAttribute($value) {
+        return $value;
+    }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->bigInteger('nip')->nullable();
             $table->text('bio')->nullable();
             $table->string('url')->nullable();
-            $table->foreignId('role_id');
+            $table->foreignId('role_id')->onDelete("cascade");
             $table->string('foto')->nullable();
             $table->timestamps();
         });

@@ -243,7 +243,13 @@ class ApplicantController extends Controller
             "ExpiryDate" => $Applicant->expiry_date,
             "UserApplicants" => $Applicant->user->name,
             "type" => $Applicant->type,
-            "Images" => $images // Kumpulkan URL gambar dalam array
+            "Images" => $Applicant->images->map(function ($image) {
+        $data = json_decode($image->path, true);
+        
+        return array_values(
+            array_map(fn ($path) => env('APP_URL') . $path, $data)
+        );
+    })->flatten(1)->all()// Kumpulkan URL gambar dalam array
         ];
 
         return response()->json([
@@ -269,7 +275,7 @@ class ApplicantController extends Controller
             }   
             
             if ($request->has('asset_id')) {
-            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->first();
+            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->where('status', 1)->first();
                if(!$newAsset){
                      return response()->json(['message' => 'item_Condition'], 400);
                };

@@ -94,6 +94,13 @@ class UserController extends Controller
     public function update(Request $request){
          $user = user::where('id', Auth::user()->id)->first();
 
+         
+        if($user->role_id == 2){
+                return response()->json([
+                    'message' => "user cant update Profile"
+                ]);
+        }   
+
         if($user->role_id == 1){
             if($request->has("username")){
             $user->username = $request->username;
@@ -134,7 +141,7 @@ class UserController extends Controller
             ;
 
         }
-
+            
             
 
    

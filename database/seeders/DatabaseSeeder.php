@@ -49,6 +49,14 @@ class DatabaseSeeder extends Seeder
         "role_id" => 2, // Menggunakan role_id
     ]);
 
+    User::create([
+        "name" => "ipul",
+        "username" => "ipul",
+         "email" => "ipul@ipul.com",
+        "password" => bcrypt("ipul12345"),
+        "role_id" => 2, // Menggunakan role_id
+    ]);
+
      Department::create([
         "name" => "back end"
     ]);
