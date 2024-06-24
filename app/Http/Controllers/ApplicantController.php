@@ -128,7 +128,7 @@ class ApplicantController extends Controller
            
 
                 return response()->json([
-                    'message' => 'Peminjaman berhasil'
+                    'message' => 'Applicant Successfully'
                 ]);
             } 
 
@@ -431,7 +431,7 @@ class ApplicantController extends Controller
             ];
 
          return response()->json([
-        'message' => $Applicantdata
+        'data' => $Applicantdata
     ]);
         }
     }

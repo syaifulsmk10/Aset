@@ -217,7 +217,7 @@ public function index(Request $request){
             ];
 
          return response()->json([
-        'message' => $Employeedata
+        'data' => $Employeedata
     ]);
 
     }

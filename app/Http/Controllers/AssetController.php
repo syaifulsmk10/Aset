@@ -233,7 +233,7 @@ return response()->json([
             ];
 
          return response()->json([
-        'message' => $Assetdata
+        'data' => $Assetdata
     ]);
 
     }
