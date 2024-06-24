@@ -111,7 +111,7 @@ return response()->json([
 
     foreach ($images as $image) {
         $imageName = $image->getClientOriginalName();
-        $image->move(public_path('path'), $imageName);
+        $image->move(public_path(), $imageName);
         $imagePaths[] = $imageName;
     }
 
@@ -181,7 +181,7 @@ return response()->json([
 
         foreach ($images as $image) {
             $imageName = $image->getClientOriginalName();
-            $image->move(public_path('path'), $imageName);
+            $image->move(public_path(), $imageName);
             $imagePaths[] = $imageName;
         }
 

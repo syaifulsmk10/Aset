@@ -109,7 +109,7 @@ class ApplicantController extends Controller
 
     foreach ($images as $image) {
         $imageName = $image->getClientOriginalName();
-        $image->move(public_path('path'), $imageName);
+        $image->move(public_path(), $imageName);
         $imagePaths[] = $imageName;
     }
 
@@ -148,7 +148,7 @@ class ApplicantController extends Controller
 
     foreach ($images as $image) {
         $imageName = $image->getClientOriginalName();
-        $image->move(public_path('path'), $imageName);
+        $image->move(public_path(), $imageName);
         $imagePaths[] = $imageName;
     }
 
@@ -168,16 +168,16 @@ class ApplicantController extends Controller
 
 
                 return response()->json([
-                    'message' => 'Peminjaman berhasil'
+                    'message' => 'Success Applicant'
                 ]);
             } else {
                 return response()->json([
-                    'message' => 'Kondisi aset tidak memenuhi syarat'
+                    'message' => 'The condition of the asset does not meet the requirements'
                 ], 400);
             }
         } else {
             return response()->json([
-                'message' => 'Aset tidak ditemukan'
+                'message' => 'Asset not found.'
             ], 404);
         }
     }
@@ -325,7 +325,7 @@ class ApplicantController extends Controller
 
         foreach ($images as $image) {
             $imageName = $image->getClientOriginalName();
-            $image->move(public_path('path'), $imageName);
+            $image->move(public_path(), $imageName);
             $imagePaths[] = $imageName;
         }
 
@@ -395,7 +395,7 @@ class ApplicantController extends Controller
 
         foreach ($images as $image) {
             $imageName = $image->getClientOriginalName();
-            $image->move(public_path('path'), $imageName);
+            $image->move(public_path(), $imageName);
             $imagePaths[] = $imageName;
         }
 
