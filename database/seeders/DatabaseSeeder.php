@@ -80,6 +80,13 @@ class DatabaseSeeder extends Seeder
         "position_id" => 1,
     ]);
 
+    Employee::create([
+        "user_id" => 3,
+        "nip" => 681638,
+        "department_id" => 1,
+        "position_id" => 1,
+    ]);
+
     Category::create([
         "name" => "Peralatan IT"
     ]);
