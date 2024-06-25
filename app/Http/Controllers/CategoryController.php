@@ -35,7 +35,7 @@ class CategoryController extends Controller
 
 
         return response()->json([
-            "message" => "sucess update category"
+            "message" => "sucess updare category"
         ]);
     }
 

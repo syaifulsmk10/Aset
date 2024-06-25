@@ -5,7 +5,9 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataApplicantController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,5 +79,20 @@ Route::prefix('/category')->group(function () {
     Route::post('/create', [CategoryController::class, 'create']);  
     Route::post('/update/{id}', [CategoryController::class, 'update']);  
     Route::delete('/delete/{id}', [CategoryController::class, 'delete']); 
+});
+
+
+Route::prefix('/position')->group(function () {
+    Route::get('/index', [PositionController::class, 'index']); 
+    Route::post('/create', [PositionController::class, 'create']);  
+    Route::post('/update/{id}', [PositionController::class, 'update']);  
+    Route::delete('/delete/{id}', [PositionController::class, 'delete']); 
+});
+
+Route::prefix('/department')->group(function () {
+    Route::get('/index', [DepartmentController::class, 'index']); 
+    Route::post('/create', [DepartmentController::class, 'create']);  
+    Route::post('/update/{id}', [DepartmentController::class, 'update']);  
+    Route::delete('/delete/{id}', [DepartmentController::class, 'delete']); 
 });
 });
