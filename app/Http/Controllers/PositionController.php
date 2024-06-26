@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Validator;
 
 class PositionController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $position = Position::all();
         return response()->json([
             "data" =>  $position
@@ -16,49 +17,50 @@ class PositionController extends Controller
     }
 
 
-    public function create(Request $request){
+    public function create(Request $request)
+    {
 
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
 
-    ]);
-     if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation Error',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-    
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         Position::create($request->all());
         return response()->json([
             "message" => "success create position"
         ]);
     }
 
-    public function update(Request $request, $id){
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-     
-    ]);
-     if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation Error',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-      $position = Position::find($id);
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
 
-
-        if(!$position){
-            return response()->json([
-            "message" => "Position Not Found"
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $position = Position::find($id);
 
+
+        if (!$position) {
+            return response()->json([
+                "message" => "Position Not Found"
+            ]);
         }
         if ($request->has('name')) {
-        $position->name = $request->name;
-        $position->save();
-    }
+            $position->name = $request->name;
+            $position->save();
+        }
 
 
         return response()->json([
@@ -66,7 +68,8 @@ class PositionController extends Controller
         ]);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $position = position::find($id);
         if (!$position) {
             return response()->json([

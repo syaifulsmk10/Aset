@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $category = Category::all();
         return response()->json([
             "data" =>  $category
@@ -15,7 +16,8 @@ class CategoryController extends Controller
     }
 
 
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         category::create([
             'name' => $request->name,
         ]);
@@ -24,14 +26,15 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $category = category::find($id);
-    if ($request->has('name')) {
-        $category->name = $request->name;
-    }
+        if ($request->has('name')) {
+            $category->name = $request->name;
+        }
 
-     $category->save();
-    
+        $category->save();
+
 
 
         return response()->json([
@@ -39,7 +42,8 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $category = category::find($id);
         $category->delete();
 

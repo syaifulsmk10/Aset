@@ -13,13 +13,13 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-       public function postLogin(Request $request)
+    public function postLogin(Request $request)
     {
         $validate = $request->validate([
             "email" => 'required|email',
             "password" => "required",
         ]);
-    
+
         if (!Auth::attempt($validate)) {
             return response()->json([
                 'message' => 'Wrong email or password',
@@ -28,7 +28,7 @@ class UserController extends Controller
         }
         $user = Auth::user();
         $token = $user->createToken('auth')->plainTextToken;
-    
+
         if ($user->role_id == 1) {
             return response()->json([
                 'message' => 'Success Login Admin',
@@ -36,7 +36,7 @@ class UserController extends Controller
                 'token' => $token
             ], 200);
         }
-    
+
         return response()->json([
             'message' => 'Success Login User',
             'data' => $validate,
@@ -45,28 +45,28 @@ class UserController extends Controller
     }
 
     public function registerUser(Request $request)
-    {   
-         $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255|unique:users,email',
-        'password' => 'required|string|min:8',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8',
+        ]);
 
-    // Check if the validation fails
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation Error',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-        
+        // Check if the validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
 
         $user = user::where('role_id', 1)->get();
-        foreach($user as $users){
-            if($users->email == $request->email){
-            return response()->json([
-                "message" => "email is already in use"
-            ]);
+        foreach ($user as $users) {
+            if ($users->email == $request->email) {
+                return response()->json([
+                    "message" => "email is already in use"
+                ]);
             }
         }
 
@@ -84,101 +84,102 @@ class UserController extends Controller
     }
 
     public function getUser(Request $request)
-        {
+    {
         $user = user::where('id', Auth::user()->id)->first();
-         if(!$user){
+        if (!$user) {
             return response()->json([
-                    'message' => "User Not Found"
-                ]);
+                'message' => "User Not Found"
+            ]);
         }
-               
+
         if ($user->role_id == 1) {
-        return response()->json([
-            'message' => 'success',
-            'data' => [
-                'foto' => $user->foto,
-                'username' => $user->username,
-                'email' => $user->email,
-                'password' => $user->plaintext_password 
+            return response()->json([
+                'message' => 'success',
+                'data' => [
+                    'foto' => $user->foto,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'password' => $user->plaintext_password
 
-            ]
-        ], 200);
-    } else{
-        return response()->json([
-            'message' => 'Failed read',
-        ], 400);
-    }
-    }
-
-
-    public function update(Request $request){
-         $user = user::where('id', Auth::user()->id)->first();
-
-    $validator = Validator::make($request->all(), [
-        'username' => 'sometimes|required|string|max:255',
-        'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
-        'password' => 'sometimes|required|string|min:8|confirmed',
-        'foto' => 'file|image|max:2048' 
-    ]);
-     if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation Error',
-            'errors' => $validator->errors()
-        ], 422);
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Failed read',
+            ], 400);
+        }
     }
 
-    if(!$user){
-        return response()->json([
-            'message' => "User Not Found"
+
+    public function update(Request $request)
+    {
+        $user = user::where('id', Auth::user()->id)->first();
+
+        $validator = Validator::make($request->all(), [
+            'username' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'sometimes|required|string|min:8|confirmed',
+            'foto' => 'file|image|max:2048'
         ]);
-    }
-    
-    if($user->role_id == 2){
-        return response()->json([
-            'message' => "user cant update Profile"
-        ]);
-    }   
-
-        if($user->role_id == 1){
-            if($request->has("username")){
-            $user->username = $request->username;
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-            if($request->has("email")){
-            $user->email = $request->email;
+        if (!$user) {
+            return response()->json([
+                'message' => "User Not Found"
+            ]);
         }
 
-            if($request->has("password")){
-            $user->password = $request->password;
+        if ($user->role_id == 2) {
+            return response()->json([
+                'message' => "user cant update Profile"
+            ]);
         }
 
-             $user->save();
-
-      
-
-         if ($request->hasFile('foto')) {
-
-
-
-            $Foto = $request->file('foto')->move(public_path(), $request->file('foto')->getClientOriginalName());
-            $Photos = $request->file('foto')->getClientOriginalName();
-
-
-
-            if(!$Foto){
-                return response()->json([
-                    "message" => "failed to upload image"
-                ]);
+        if ($user->role_id == 1) {
+            if ($request->has("username")) {
+                $user->username = $request->username;
             }
 
-            if($user){
-                $user->update([
-                    "foto" => $Photos,
-                ]);
-            };
+            if ($request->has("email")) {
+                $user->email = $request->email;
+            }
+
+            if ($request->has("password")) {
+                $user->password = $request->password;
+            }
+
+            $user->save();
+
+
+
+            if ($request->hasFile('foto')) {
+
+
+
+                $Foto = $request->file('foto')->move(public_path(), $request->file('foto')->getClientOriginalName());
+                $Photos = $request->file('foto')->getClientOriginalName();
+
+
+
+                if (!$Foto) {
+                    return response()->json([
+                        "message" => "failed to upload image"
+                    ]);
+                }
+
+                if ($user) {
+                    $user->update([
+                        "foto" => $Photos,
+                    ]);
+                };
+            }
         }
-    }
-         return response()->json([
+        return response()->json([
             "message" => "success update user"
         ]);
     }
