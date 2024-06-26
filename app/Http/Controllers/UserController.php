@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -15,7 +16,7 @@ class UserController extends Controller
        public function postLogin(Request $request)
     {
         $validate = $request->validate([
-            "email" => "required|email",
+            "email" => 'required|email|max:255|unique:users,email',
             "password" => "required",
         ]);
     
@@ -44,7 +45,21 @@ class UserController extends Controller
     }
 
     public function registerUser(Request $request)
-    {
+    {   
+         $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users,email',
+        'password' => 'required|string|min:8',
+    ]);
+
+    // Check if the validation fails
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+        
 
         $user = user::where('role_id', 1)->get();
         foreach($user as $users){
@@ -71,6 +86,11 @@ class UserController extends Controller
     public function getUser(Request $request)
         {
         $user = user::where('id', Auth::user()->id)->first();
+         if(!$user){
+            return response()->json([
+                    'message' => "User Not Found"
+                ]);
+        }
                
         if ($user->role_id == 1) {
         return response()->json([
@@ -94,12 +114,30 @@ class UserController extends Controller
     public function update(Request $request){
          $user = user::where('id', Auth::user()->id)->first();
 
-         
-        if($user->role_id == 2){
-                return response()->json([
-                    'message' => "user cant update Profile"
-                ]);
-        }   
+    $validator = Validator::make($request->all(), [
+        'username' => 'sometimes|required|string|max:255',
+        'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
+        'password' => 'sometimes|required|string|min:8|confirmed',
+        'foto' => 'file|image|max:2048' 
+    ]);
+     if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    if(!$user){
+        return response()->json([
+            'message' => "User Not Found"
+        ]);
+    }
+    
+    if($user->role_id == 2){
+        return response()->json([
+            'message' => "user cant update Profile"
+        ]);
+    }   
 
         if($user->role_id == 1){
             if($request->has("username")){
@@ -137,20 +175,10 @@ class UserController extends Controller
                 $user->update([
                     "foto" => $Photos,
                 ]);
-            }
-            ;
-
+            };
         }
-            
-            
-
-   
-
-        
-        }
-        
-
-        return response()->json([
+    }
+         return response()->json([
             "message" => "success update user"
         ]);
     }

@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Category;
 use App\Models\ImageAsset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AssetController extends Controller
 {public function index(Request $request)
@@ -85,15 +86,22 @@ return response()->json([
 }
 
     public function create(Request $request)
-    {
-        // $imagepath = $request->file('path')->move(public_path(), $request->file('path')->getClientOriginalName());
-        // $imagename = $request->file('path')->getClientOriginalName();
+    {   
+         $validator = Validator::make($request->all(), [
+        'asset_code' => 'required|string|max:10',
+        'asset_name' => 'required|string|max:255',
+        'category_id' => 'required|integer|exists:categories,id',
+        'item_condition' => 'required|integer|max:7',
+        'price' => 'required|numeric',
+        'received_date' => 'required|date',
+        'expiration_date' => 'required|date',
+        'status' => 'required|integer|max:6',
+        'path.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk setiap file path
+    ]);
 
-        //  if(!$imagepath){
-        //     return response()->json([
-        //         "message" => "Failed to upload image"
-        //     ], 400);
-        // }
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
 
         $Asset = Asset::create([
             'asset_code' => $request->asset_code,
@@ -127,12 +135,34 @@ return response()->json([
     return response()->json(['error' => 'No file found'], 400);
 }
 
-   
-    }
+}
 
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+        'asset_code' => 'sometimes|required|string|max:10',
+        'asset_name' => 'sometimes|required|string|max:255',
+        'category_id' => 'sometimes|required|integer|exists:categories,id',
+        'item_condition' => 'sometimes|required|integer|max:7',
+        'price' => 'sometimes|required|numeric',
+        'received_date' => 'sometimes|required|date',
+        'expiration_date' => 'sometimes|required|date',
+        'status' => 'sometimes|required|integer|max:6',
+        'path.*' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+        ]);
+
+        if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+
        $asset = Asset::find($id);
+
+       if(!$asset){
+            return response()->json([
+                "message" => "asset not found"
+            ]);
+       }
 
 
         if ($request->has('asset_code')) {
@@ -190,17 +220,20 @@ return response()->json([
             'path' => json_encode($imagePaths),
         ]);
 
-        return response()->json([
+       
+    }  return response()->json([
             "message" => "Success Update Asset"
         ], 200);
-    } else {
-        return response()->json(['error' => 'No file found'], 400);
-    }
 
 }
 
     public function delete($id){
     $asset = Asset::find($id);
+    if(!$asset){
+            return response()->json([
+                "message" => "asset not found"
+            ]);
+    }
 
      $asset->delete();
      $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
@@ -217,6 +250,11 @@ return response()->json([
 
     public function detail($id){
         $Asset = Asset::find($id);
+        if(!$Asset){
+            return response()->json([
+                "message" => "asset not found"
+            ]); 
+        }
         $Assetdata = [];
              $Assetdata[] = [
             'asset_code' => $Asset->asset_code,

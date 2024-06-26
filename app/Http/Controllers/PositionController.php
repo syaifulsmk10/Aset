@@ -36,8 +36,7 @@ class PositionController extends Controller
     }
 
     public function update(Request $request, $id){
-        $position = Position::find($id);
-         $validator = Validator::make($request->all(), [
+    $validator = Validator::make($request->all(), [
         'name' => 'required|string|max:255',
      
     ]);
@@ -47,6 +46,7 @@ class PositionController extends Controller
             'errors' => $validator->errors()
         ], 422);
     }
+      $position = Position::find($id);
 
 
         if(!$position){
