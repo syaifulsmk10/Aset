@@ -92,7 +92,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => [
-                    'foto' => env('APP_URL') . 'uploads/profile' . $user->foto,
+                    'foto' => env('APP_URL') . 'uploads/profiles' . $user->foto,
                     'username' => $user->username,
                     'email' => $user->email,
                 ]

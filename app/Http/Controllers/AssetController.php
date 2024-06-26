@@ -102,8 +102,8 @@ class AssetController extends Controller
             $imagePaths = [];
 
             foreach ($images as $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move(public_path(), $imageName);
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }
 
@@ -191,8 +191,8 @@ class AssetController extends Controller
             }
 
             foreach ($images as $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move(public_path(), $imageName);
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }
 
