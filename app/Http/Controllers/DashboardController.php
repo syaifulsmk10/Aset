@@ -55,8 +55,8 @@ foreach ($nearestReturns as $nearestReturn) {
             'total_active_assets' => $totalActiveAssets,
             'total_damaged_assets' => $totalDamagedAssets,
             'total_loaned_assets' => $totalLoanedAssets,
-            'datanearestReturn' => $datanearestReturns,
-            'data' => $data
+            'nearest_return' => $datanearestReturns,
+            'asset_category' => $data
             
         ]);
     }
