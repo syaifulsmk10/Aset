@@ -16,7 +16,7 @@ class UserController extends Controller
        public function postLogin(Request $request)
     {
         $validate = $request->validate([
-            "email" => 'required|email|max:255|unique:users,email',
+            "email" => 'required|email',
             "password" => "required",
         ]);
     

@@ -20,7 +20,6 @@ class DataApplicantController extends Controller
         ]);
     }
 
-    if ($request->has('search')) {
         $search = $request->input('search');
         $query->where(function($q) use ($search) {
             $q->whereHas('asset', function($q) use ($search) {
@@ -32,7 +31,6 @@ class DataApplicantController extends Controller
                 $q->where('name', 'LIKE', "%{$search}%");
             });
         });
-    }
 
     if($request->has('type')){
         $type = $request->input('type');
@@ -53,7 +51,7 @@ class DataApplicantController extends Controller
 
 
     $perpage = $request->input('per_page', 10);
-    $applicants = $query->paginate($perpage);
+   return $applicants = $query->paginate($perpage);
 
     // $dataApplicant = collect($applicants)->map(function($applicant){
     //     $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
@@ -69,13 +67,14 @@ class DataApplicantController extends Controller
     //         "type" => $applicant->type
     //     ];
     // })->all();
-        $dataApplicant = [];
+        // $dataApplicant = [];
      foreach ($applicants as $applicant) {
         $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
         $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
         $userName = $applicant->user ? $applicant->user->name : null;
 
         $dataApplicant[] = [
+            "id" => $applicant->id,
             "NameAsset" => $assetName,
             "Category" => $categoryName,
             "SubmissionDate" => $applicant->submission_date,
@@ -87,17 +86,17 @@ class DataApplicantController extends Controller
 
 
 
-    return response()->json([
-        "dataApplicant" => $dataApplicant,
-        "pagination" => [
-            'total' => $applicants->total(),
-            'per_page' => $applicants->perPage(),
-            'current_page' => $applicants->currentPage(),
-            'last_page' => $applicants->lastPage(),
-            'next_page_url' => $applicants->nextPageUrl(),
-            'prev_page_url' => $applicants->previousPageUrl()
-        ]
-    ]);
+    // return response()->json([
+    //     "dataApplicant" => $dataApplicant,
+    //     "pagination" => [
+    //         'total' => $applicants->total(),
+    //         'per_page' => $applicants->perPage(),
+    //         'current_page' => $applicants->currentPage(),
+    //         'last_page' => $applicants->lastPage(),
+    //         'next_page_url' => $applicants->nextPageUrl(),
+    //         'prev_page_url' => $applicants->previousPageUrl()
+    //     ]
+    // ]);
 }
 
 
@@ -105,6 +104,11 @@ class DataApplicantController extends Controller
     public function detail($id)
     {
         $Applicant = Applicant::with(['asset', 'user', 'images'])->find($id);
+        if(!$Applicant){
+            return response()->json([
+            "message" => "Applicant Not Found"
+        ]);
+        }
 
         // $images = collect($Applicant->images)->map(function($image){
         //     return $image->path;
@@ -117,6 +121,7 @@ class DataApplicantController extends Controller
         }
 
         $dataApplicant = [
+            "id" => $Applicant->id,
             "NameAsset" => $Applicant->asset->asset_name,
             "Category" => $Applicant->asset->category->name,
             "SubmissionDate" => $Applicant->submission_date,
@@ -141,6 +146,11 @@ class DataApplicantController extends Controller
     public function accept($id)
 {
     $Applicant = Applicant::find($id);
+        if (!$Applicant) {
+            return response()->json([
+                "message" => "Applicant Not Found"
+            ]);
+        }
 
     if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
         $Applicant->update([
@@ -179,6 +189,11 @@ class DataApplicantController extends Controller
     public function denied($id)
     {
         $Applicant = Applicant::find($id);
+         if (!$Applicant) {
+            return response()->json([
+                "message" => "Applicant Not Found"
+            ]);
+        }
 
         if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
             $Applicant->update([
@@ -210,24 +225,15 @@ class DataApplicantController extends Controller
         }
     }
 
-   public function reset(){
-    $assets = Asset::all();
-     Image::truncate();
-    Applicant::truncate();
-     foreach ($assets as $asset) {
-        $asset->update([
-            "status" => 1,
-        ]);
-    }
-
-    return response()->json([
-        "message" => "Success Reset Applicant"
-    ]);
-}
 
     public function delete($id)
     {
         $Applicant = Applicant::find($id);
+         if (!$Applicant) {
+            return response()->json([
+                "message" => "Applicant Not Found"
+            ]);
+        }
         if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
             $Applicant->update([
                 "delete_admin" => now(),

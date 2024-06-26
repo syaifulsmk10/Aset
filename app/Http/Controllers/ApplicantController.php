@@ -8,6 +8,7 @@ use App\Models\image;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ApplicantController extends Controller
 {
@@ -19,7 +20,7 @@ class ApplicantController extends Controller
     {
         $query = Applicant::where('user_id', Auth::user()->id)->whereNull('delete_user');
 
-        if ($request->has('search')) {
+  
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->orWhereHas('asset', function ($q) use ($search) {
@@ -29,7 +30,6 @@ class ApplicantController extends Controller
                         });
                 });
             });
-        }
 
         if($request->has("start_date") && $request->has('end_date')){
             $startdate = $request->input("start_date");
@@ -44,10 +44,11 @@ class ApplicantController extends Controller
         }
 
         $perpage = $request->input("per_page", 10);
-        $applicants = $query->paginate($perpage);
-        $applicantdata = [];
+       return $applicants = $query->paginate($perpage);
+        // $applicantdata = [];
         foreach($applicants as $applicant){
             $applicantdata[] = [
+                "id" => $applicant->id,
                 "name" => $applicant->asset->asset_name,
                 "kategori" => $applicant->asset->category->name,
                 "tanggal pengajuan" => $applicant->submission_date,
@@ -68,22 +69,26 @@ class ApplicantController extends Controller
         //     ];
         // })->all();
 
-        return response()->json([
-            'applicantdata' => $applicantdata,
-            "pagination" => [
-                'total' => $applicants->total(),
-                'per_page' => $applicants->perPage(),
-                'current_page' => $applicants->currentPage(),
-                'last_page' => $applicants->lastPage(),
-                'next_page_url' => $applicants->nextPageUrl(),
-                'prev_page_url' => $applicants->previousPageUrl()
-            ]
-        ]);
+        // return response()->json([
+        //     'applicantdata' => $applicantdata,
+           
+        // ]);
     }
 
 
     public function create(Request $request)
-    {
+    {   
+        $validator = Validator::make($request->all(), [
+       'asset_id' => 'required|exists:assets,id',
+        'submission_date' => 'required|date',
+        'expiry_date' => 'required|date|after:submission_date',
+        'type' => 'required|in:1,2',
+        'path.*' => 'sometimes|required||image|mimes:jpeg,png,jpg,gif|max:2048', 
+        ]);
+
+        if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
 
 
         $asset = Asset::find($request->asset_id);
@@ -99,8 +104,7 @@ class ApplicantController extends Controller
                     'status' => 1,
                 ]);
 
-                  $asset->status = 7;
-                   $asset->save();
+                 
     
 
              if ($request->hasFile('path')) {
@@ -118,18 +122,19 @@ class ApplicantController extends Controller
         'path' => json_encode($imagePaths),
     ]);
 
+     $asset->status = 7;
+    $asset->save();
+
 
     return response()->json([
         "message" => "Success Add Applicant"
     ], 200);
-} 
+}else{
+    return response()->json([
+        "message" => "Foto not found",
+    ], 200);  
+}
 
-
-           
-
-                return response()->json([
-                    'message' => 'Applicant Successfully'
-                ]);
             } 
 
             elseif ($asset->status == 'Dipinjamkan' &&$request->type == 2) {
@@ -156,18 +161,16 @@ class ApplicantController extends Controller
         'applicant_id' => $applicant->id,
         'path' => json_encode($imagePaths),
     ]);
+       $asset->status = 7;
+            $asset->save();
 
     return response()->json([
         "message" => "Success Add Applicant"
     ], 200);
-} 
-
-
-                 $asset->status = 7;
-            $asset->save();
-
-
-                return response()->json([
+} else{
+    
+}
+ return response()->json([
                     'message' => 'Success Applicant'
                 ]);
             } else {
@@ -185,6 +188,11 @@ class ApplicantController extends Controller
      public function delete($id)
     {
         $Applicant = Applicant::find($id);
+        if(!$Applicant){
+            return response()->json([
+                'message' => 'Applicant not found.'
+            ], 404);
+        }
         $asset = Asset::find($Applicant->asset_id);
         $image = Image::where('applicant_id', $Applicant->id)->first();
         if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
@@ -226,6 +234,11 @@ class ApplicantController extends Controller
      public function detail($id)
     {
         $Applicant = Applicant::with(['asset', 'user', 'images'])->where('user_id', Auth::user()->id)->find($id);
+        if(!$Applicant){
+            return response()->json([
+                'message' => 'Applicant not found.'
+            ], 404);
+        }
 
         // $images = collect($Applicant->image)->map(function ($image) {
         //     return $image->path;
@@ -237,6 +250,7 @@ class ApplicantController extends Controller
         }
 
         $dataApplicant = [
+            "id" => $Applicant->id,
             "NameAsset" => $Applicant->asset->asset_name,
             "Category" => $Applicant->asset->category->name,
             "SubmissionDate" => $Applicant->submission_date,
@@ -260,9 +274,24 @@ class ApplicantController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+       'asset_id' => 'sometimes|required|exists:assets,id',
+        'submission_date' => 'sometimes|required|date',
+        'expiry_date' => 'sometimes|required|date|after:submission_date',
+        'type' => 'sometimes|required|in:1,2',
+        'path.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+        ]);
 
+        if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
         
         $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(!$Applicant){
+            return response()->json([
+                'message' => 'Applicant not found.'
+            ], 404);
+        }
         $oldAsset = Asset::find($Applicant->asset_id);
 
         
@@ -418,10 +447,18 @@ class ApplicantController extends Controller
 
     public function detil($id){
         $Applicant =    Applicant::find($id);
+        if(!$Applicant || $Applicant->status !== "Belum_Disetujui"){
+            return response()->json([
+                'message' => 'Applicant not found.'
+            ], 404);
+        }
+
+
 
         if ($Applicant && $Applicant->status == "Belum_Disetujui") {
              $Applicantdata = [];
              $Applicantdata[] = [
+
                  "name" => $Applicant->asset->asset_name,
                 "kategori" => $Applicant->asset->category->name,
                 "tanggal pengajuan" => $Applicant->submission_date,

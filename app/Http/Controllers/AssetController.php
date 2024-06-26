@@ -23,7 +23,6 @@ class AssetController extends Controller
             ]);
        }
 
-    if ($request->has('search')) {
         $search = $request->input('search');
         $query->where(function($q) use ($search) {
             $q->where('asset_code', 'LIKE', "%{$search}%")
@@ -32,7 +31,7 @@ class AssetController extends Controller
                   $q->where('name', 'LIKE', "%{$search}%");
               });
         });
-    }
+    
 
      if ($request->has('status')) {
         $status = $request->input('status');
@@ -54,6 +53,7 @@ $assets = $query->paginate($perPage);
 $assets->getCollection()->transform(function ($asset) {
     
     return [
+        'id' => $asset->id,
         'asset_code' => $asset->asset_code,
         'asset_name' => $asset->asset_name,
         'category' => $asset->category->name,
@@ -72,17 +72,19 @@ $assets->getCollection()->transform(function ($asset) {
     ];
 });
 
-return response()->json([
-    'data' => $assets->items(),
-    'pagination' => [
-        'total' => $assets->total(),
-        'per_page' => $assets->perPage(),
-        'current_page' => $assets->currentPage(),
-        'last_page' => $assets->lastPage(),
-        'next_page_url' => $assets->nextPageUrl(),
-        'prev_page_url' => $assets->previousPageUrl()
-    ]
-]);
+return response()->json($assets);
+
+// return response()->json([
+//     'data' => $assets->items(),
+//     // 'pagination' => [
+//     //     'total' => $assets->total(),
+//     //     'per_page' => $assets->perPage(),
+//     //     'current_page' => $assets->currentPage(),
+//     //     'last_page' => $assets->lastPage(),
+//     //     'next_page_url' => $assets->nextPageUrl(),
+//     //     'prev_page_url' => $assets->previousPageUrl()
+//     // ]
+// ]);
 }
 
     public function create(Request $request)
