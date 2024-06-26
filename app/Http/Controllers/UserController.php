@@ -151,7 +151,7 @@ class UserController extends Controller
 
             if ($request->hasFile('foto')) {
                 $Foto = $request->file('foto')->move(public_path('uploads/profile'), $request->file('foto')->getClientOriginalName());
-                $Photos = $request->file('foto')->getClientOriginalName();
+                $Photos = time() . '_' . $request->file('foto')->getClientOriginalName();
 
                 if (!$Foto) {
                     return response()->json([
