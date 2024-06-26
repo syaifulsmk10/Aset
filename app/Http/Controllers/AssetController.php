@@ -259,23 +259,10 @@ class AssetController extends Controller
                 "message" => "asset not found"
             ]);
         }
-        $Assetdata = [];
-        $Assetdata[] = [
-            'asset_code' => $Asset->asset_code,
-            'asset_name' => $Asset->asset_name,
-            'category_id' => $Asset->category_id,
-            'item_condition' => $Asset->item_condition,
-            'price' => $Asset->price,
-            'received_date' => $Asset->received_date,
-            'expiration_date' => $Asset->expiration_date,
-            'status' => $Asset->status,
-            'image' => collect($Asset->imageAssets)->map(function ($imageAsset) {
-                return env('APP_URL') . $imageAsset->path;
-            })
-        ];
+       
 
         return response()->json([
-            'data' => $Assetdata
+            'data' => $Asset
         ]);
     }
 }

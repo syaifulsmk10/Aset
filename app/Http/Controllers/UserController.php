@@ -60,7 +60,6 @@ class UserController extends Controller
             ], 422);
         }
 
-
         $user = user::where('role_id', 1)->get();
         foreach ($user as $users) {
             if ($users->email == $request->email) {
@@ -96,10 +95,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => [
-                    'foto' => $user->foto,
+                    'foto' => env('APP_URL') . 'uploads/profile' . $user->foto,
                     'username' => $user->username,
                     'email' => $user->email,
-                    'password' => $user->plaintext_password
+                    'password' => $user->password
 
                 ]
             ], 200);
@@ -155,16 +154,9 @@ class UserController extends Controller
 
             $user->save();
 
-
-
             if ($request->hasFile('foto')) {
-
-
-
-                $Foto = $request->file('foto')->move(public_path(), $request->file('foto')->getClientOriginalName());
+                $Foto = $request->file('foto')->move(public_path('uploads/profile'), $request->file('foto')->getClientOriginalName());
                 $Photos = $request->file('foto')->getClientOriginalName();
-
-
 
                 if (!$Foto) {
                     return response()->json([
