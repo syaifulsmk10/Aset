@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -98,8 +95,6 @@ class UserController extends Controller
                     'foto' => env('APP_URL') . 'uploads/profile' . $user->foto,
                     'username' => $user->username,
                     'email' => $user->email,
-                    'password' => $user->password
-
                 ]
             ], 200);
         } else {
