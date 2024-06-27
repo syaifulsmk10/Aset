@@ -93,7 +93,8 @@ Route::prefix('/position')->group(function () {
 Route::prefix('/department')->group(function () {
     Route::get('/index', [DepartmentController::class, 'index']); 
     Route::post('/create', [DepartmentController::class, 'create']);  
-    Route::post('/update/{id}', [DepartmentController::class, 'update']);  
+    Route::post('/update/{id}', [DepartmentController::class, 'update']);
+    Route::get('/detail/{id}', [DepartmentController::class, 'detail']);    
     Route::delete('/delete/{id}', [DepartmentController::class, 'delete']); 
 });
 });

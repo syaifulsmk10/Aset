@@ -80,4 +80,17 @@ class DepartmentController extends Controller
             "message" => "success delete Department"
         ]);
     }
+
+    public function detail($id)
+    {
+        $department = Department::find($id);
+
+        if (!$department) {
+            return response()->json([
+                "message" => "Department Not Found"
+            ]);
+        }
+
+        return response()->json($department);
+    }
 }
