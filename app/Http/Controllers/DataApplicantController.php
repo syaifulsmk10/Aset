@@ -52,7 +52,7 @@ class DataApplicantController extends Controller
 
         $perpage = $request->input('per_page', 10);
         $applicants = $query->paginate($perpage);
-        
+
         foreach ($applicants as $applicant) {
             $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
             $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
@@ -105,9 +105,7 @@ class DataApplicantController extends Controller
             })->flatten(1)->all() // Kumpulkan URL gambar dalam array
         ];
 
-        return response()->json([
-            "dataApplicant" => $dataApplicant
-        ]);
+        return response()->json($dataApplicant);
     }
 
 

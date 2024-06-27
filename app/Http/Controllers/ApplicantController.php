@@ -231,9 +231,7 @@ class ApplicantController extends Controller
             })->flatten(1)->all() // Kumpulkan URL gambar dalam array
         ];
 
-        return response()->json([
-            "dataApplicant" => $dataApplicant
-        ]);
+        return response()->json($dataApplicant);
     }
 
 
@@ -417,6 +415,28 @@ class ApplicantController extends Controller
             ], 404);
         }
 
-        return response()->json($Applicant);
+        $images = [];
+        foreach ($Applicant->images as $image) {
+            $images[] = $image->path;
+        }
+
+        $dataApplicant = [
+            "id" => $Applicant->id,
+            "NameAsset" => $Applicant->asset->asset_name,
+            "Category" => $Applicant->asset->category->name,
+            "SubmissionDate" => $Applicant->submission_date,
+            "ExpiryDate" => $Applicant->expiry_date,
+            "UserApplicants" => $Applicant->user->name,
+            "type" => $Applicant->type,
+            "Images" => $Applicant->images->map(function ($image) {
+                $data = json_decode($image->path, true);
+
+                return array_values(
+                    array_map(fn ($path) =>  $path, $data)
+                );
+            })->flatten(1)->all() // Kumpulkan URL gambar dalam array
+        ];
+
+        return response()->json($dataApplicant);
     }
 }

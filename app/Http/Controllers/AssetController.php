@@ -259,8 +259,6 @@ class AssetController extends Controller
             })->flatten(1)->all()
         ];
 
-        return response()->json([
-            "dataApplicant" => $dataApplicant
-        ]);
+        return response()->json($dataApplicant);
     }
 }
