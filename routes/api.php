@@ -85,7 +85,8 @@ Route::prefix('/category')->group(function () {
 Route::prefix('/position')->group(function () {
     Route::get('/index', [PositionController::class, 'index']); 
     Route::post('/create', [PositionController::class, 'create']);  
-    Route::post('/update/{id}', [PositionController::class, 'update']);  
+    Route::post('/update/{id}', [PositionController::class, 'update']);
+    Route::get('/detail/{id}', [PositionController::class, 'detail']);  
     Route::delete('/delete/{id}', [PositionController::class, 'delete']); 
 });
 

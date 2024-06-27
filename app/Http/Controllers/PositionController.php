@@ -80,4 +80,17 @@ class PositionController extends Controller
             "message" => "success delete position"
         ]);
     }
+
+    public function detail($id)
+    {
+        $position = Position::find($id);
+
+        if (!$position) {
+            return response()->json([
+                "message" => "Position Not Found"
+            ]);
+        }
+
+        return response()->json($position);
+    }
 }
