@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
-use App\Models\Category;
 use App\Models\ImageAsset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
