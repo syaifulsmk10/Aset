@@ -95,11 +95,9 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => [
-                    'foto' => env('APP_URL') . 'uploads/profile' . $user->foto,
+                    'foto' => $user->foto ? env('APP_URL') . 'uploads/profiles/' . $user->foto : null,
                     'username' => $user->username,
                     'email' => $user->email,
-                    'password' => $user->password
-
                 ]
             ], 200);
         } else {
@@ -155,24 +153,29 @@ class UserController extends Controller
             $user->save();
 
             if ($request->hasFile('foto')) {
-                $Foto = $request->file('foto')->move(public_path('uploads/profile'), $request->file('foto')->getClientOriginalName());
-                $Photos = $request->file('foto')->getClientOriginalName();
+                $image_name = time() . '_' . $request->file('foto')->getClientOriginalName();
 
-                if (!$Foto) {
-                    return response()->json([
-                        "message" => "failed to upload image"
-                    ]);
-                }
+                $request->file('foto')->move(public_path('uploads/profiles'), $image_name);
 
                 if ($user) {
+                    // Hapus file gambar lama jika ada
+                    $oldImage = $user->foto;
+                    if ($oldImage) {
+                        $oldImagePath = public_path('uploads/profiles/' . $oldImage);
+                        if (file_exists($oldImagePath)) {
+                            unlink($oldImagePath);
+                        }
+                    }
+
+                    // Update user dengan file gambar baru
                     $user->update([
-                        "foto" => $Photos,
+                        "foto" => $image_name,
                     ]);
-                };
+                }
             }
+            return response()->json([
+                "message" => "success update user"
+            ]);
         }
-        return response()->json([
-            "message" => "success update user"
-        ]);
     }
 }

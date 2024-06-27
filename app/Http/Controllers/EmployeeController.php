@@ -10,23 +10,23 @@ use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
- 
 
-public function index(Request $request){
-    
-    $query = User::where('role_id', 2);
+    public function index(Request $request)
+    {
 
-    if(!$query){
+        $query = User::where('role_id', 2);
+
+        if (!$query) {
             return response()->json([
                 "message" => "not employees",
             ]);
-    }
+        }
 
-        foreach($query as $users){
-            if($users->email == $request->email){
-            return response()->json([
-                "message" => "email is already in use"
-            ]);
+        foreach ($query as $users) {
+            if ($users->email == $request->email) {
+                return response()->json([
+                    "message" => "email is already in use"
+                ]);
             }
         }
 
@@ -34,52 +34,52 @@ public function index(Request $request){
         $search = $request->input('search');
         $query->whereHas('Employee', function ($q) use ($search) {
             $q->where('name', 'LIKE', "%{$search}%")
-              ->orWhere('nip', 'LIKE', "%{$search}%");
+                ->orWhere('nip', 'LIKE', "%{$search}%");
         });
-    
 
-    $perpage = $request->input('per_page', 10);
-    return $users = $query->paginate($perpage);
 
-    // $user_data = collect($users)->map(function($user){
-    //         return  [
-    //         "name" => $user->name,
-    //         "nip" => $user->Employee->nip,
-    //         "email" => $user->email,
-    //         "department" => $user->Employee->department->name,
-    //         "position" => $user->Employee->position->name
-    //         ];
-    // })->all();
-    foreach($users as $user){
-        $userData[] = [
-            "id" => $user->id,
-            "name" => $user->name,
-            "nip" => $user->Employee->nip,
-            "email" => $user->email,
-            "department" => $user->Employee->department->name,
-            "position" => $user->Employee->position->name
-        ];
+        $perpage = $request->input('per_page', 10);
+        $users = $query->paginate($perpage);
+
+        // $user_data = collect($users)->map(function($user){
+        //         return  [
+        //         "name" => $user->name,
+        //         "nip" => $user->Employee->nip,
+        //         "email" => $user->email,
+        //         "department" => $user->Employee->department->name,
+        //         "position" => $user->Employee->position->name
+        //         ];
+        // })->all();
+        foreach ($users as $user) {
+            $userData[] = [
+                "id" => $user->id,
+                "name" => $user->name,
+                "nip" => $user->Employee->nip,
+                "email" => $user->email,
+                "department" => $user->Employee->department->name,
+                "position" => $user->Employee->position->name
+            ];
+        }
+        return response()->json($users);
     }
 
 
-}
-
-
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8',
-        'nip' => 'required|integer|unique:employees',
-        'department_id' => 'required|exists:departments,id',
-        'position_id' => 'required|exists:positions,id',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'nip' => 'required|integer|unique:employees',
+            'department_id' => 'required|exists:departments,id',
+            'position_id' => 'required|exists:positions,id',
         ]);
 
         if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()], 400);
-    }
+            return response()->json(['error' => $validator->errors()], 400);
+        }
 
-         $user = User::create([
+        $user = User::create([
             "name" => $request->name,
             "email" => $request->email,
             "password" => Hash::make($request->password),
@@ -94,150 +94,137 @@ public function index(Request $request){
 
         ]);
 
-         return response()->json([
+        return response()->json([
             "message" => "successs create employe"
-    ]);
-
+        ]);
     }
 
 
-    public function update(Request $request, $id){
-    
-     $validator = Validator::make($request->all(), [
-        'name' => 'sometimes|required|string|max:255',
-        'email' => 'sometimes|required|string|email|max:255|unique:users',
-        'password' => 'sometimes|required|string|min:8',
-        'nip' => 'sometimes|required|integer|unique:employees',
-        'department_id' => 'sometimes|required|exists:departments,id',
-        'position_id' => 'sometimes|required|exists:positions,id',
+    public function update(Request $request, $id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users',
+            'password' => 'sometimes|required|string|min:8',
+            'nip' => 'sometimes|required|integer|unique:employees',
+            'department_id' => 'sometimes|required|exists:departments,id',
+            'position_id' => 'sometimes|required|exists:positions,id',
         ]);
 
         if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()], 400);
-    }    
-        
-    $user = User::find($id);
-    if(!$user){
-        return response()->json([
-                "message" => "user not found"
-        ]);
-    }
+            return response()->json(['error' => $validator->errors()], 400);
+        }
 
-    if ($request->has('name')) {
-    $user->name = $request->name;
-    }
-    if ($request->has('email')) {
-        $user->email = $request->email;
-    }
-    if ($request->has('password')) {
-        $user->password = Hash::make($request->password);
-    }
-
-    $user->save();
-
-     $employee = Employee::where('user_id', $user->id)->first();
-
-    if ($request->has('nip')) {
-        $employee->nip = $request->nip;
-    }
-    if ($request->has('department_id')) {
-        $employee->department_id = $request->department_id;
-    }
-    if ($request->has('position_id')) {
-        $employee->position_id = $request->position_id;
-    }
-
-    $employee->save();
-
-    return response()->json([
-        'message' => 'Success update employee'
-    ]);
-
-    }
-
-
-    public function delete($id){
-    $user = User::find($id);
-    if(!$user){
+        $user = User::find($id);
+        if (!$user) {
             return response()->json([
                 "message" => "user not found"
             ]);
         }
-      $user->delete();
-         $employee = Employee::where('user_id', $user->id)->first();
-            if ($employee) {
-                 $employee->delete();
-            }
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        $employee = Employee::where('user_id', $user->id)->first();
+
+        if ($request->has('nip')) {
+            $employee->nip = $request->nip;
+        }
+        if ($request->has('department_id')) {
+            $employee->department_id = $request->department_id;
+        }
+        if ($request->has('position_id')) {
+            $employee->position_id = $request->position_id;
+        }
+
+        $employee->save();
+
+        return response()->json([
+            'message' => 'Success update employee'
+        ]);
+    }
 
 
-      return response()->json([
-        'message' => 'Success delete employee'
-    ]);
-}
+    public function delete($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                "message" => "user not found"
+            ]);
+        }
+        $user->delete();
+        $employee = Employee::where('user_id', $user->id)->first();
+        if ($employee) {
+            $employee->delete();
+        }
 
 
-//     public function search(Request $request){
-//         $query = $request->input("query");
+        return response()->json([
+            'message' => 'Success delete employee'
+        ]);
+    }
 
 
-//         $employees = Employee::where('nip', 'like', "%$query%")
-//             ->orwhereHas('user', function ($q) use ($query) {
-//                 $q->where('name', 'like', "%{$query}%")
-//                   ->orWhere('email', 'like', "%{$query}%");
-//             })
-//             ->orWhereHas('department', function ($q) use ($query) {
-//                 $q->where('name', 'like', "%{$query}%");
-//             })
-//             ->orWhereHas('position', function ($q) use ($query) {
-//                 $q->where('name', 'like', "%{$query}%");
-//             })
-//             ->with(['user:id,name,email', 'department:id,name', 'position:id,name'])
-//             ->get();
-
-        
-
-//      foreach($employees as $employes){
-//             $result[] = [
-//                 'employee_id' => $employes->id,
-//                 'nip' => $employes->nip,
-//                 'department' => $employes->department->name,
-//                 'position' => $employes->position->name,
-//                 'user' => [
-//                     'name' => $employes->user->name,
-//                     'email' => $employes->user->email,]
-//             ];
-//         }
+    //     public function search(Request $request){
+    //         $query = $request->input("query");
 
 
-//         return response()->json($result);
-// }
+    //         $employees = Employee::where('nip', 'like', "%$query%")
+    //             ->orwhereHas('user', function ($q) use ($query) {
+    //                 $q->where('name', 'like', "%{$query}%")
+    //                   ->orWhere('email', 'like', "%{$query}%");
+    //             })
+    //             ->orWhereHas('department', function ($q) use ($query) {
+    //                 $q->where('name', 'like', "%{$query}%");
+    //             })
+    //             ->orWhereHas('position', function ($q) use ($query) {
+    //                 $q->where('name', 'like', "%{$query}%");
+    //             })
+    //             ->with(['user:id,name,email', 'department:id,name', 'position:id,name'])
+    //             ->get();
 
 
 
-    
-    public function detail($id){
-        $Employee = User::find($id);
-        if(!$Employee){
+    //      foreach($employees as $employes){
+    //             $result[] = [
+    //                 'employee_id' => $employes->id,
+    //                 'nip' => $employes->nip,
+    //                 'department' => $employes->department->name,
+    //                 'position' => $employes->position->name,
+    //                 'user' => [
+    //                     'name' => $employes->user->name,
+    //                     'email' => $employes->user->email,]
+    //             ];
+    //         }
+
+
+    //         return response()->json($result);
+    // }
+
+
+
+
+    public function detail($id)
+    {
+        $Employee = User::where('id', $id)->where('role_id', 2)->first();
+        if (!$Employee) {
             return response()->json([
                 "message" => "Emplployee not found"
             ]);
         }
-        $Employeedata = [];
-             $Employeedata[] = [
-            "id" => $Employee->id,
-             "name" => $Employee->name,
-            "nip" => $Employee->Employee->nip,
-            "email" => $Employee->email,
-            "department" => $Employee->Employee->department->name,
-            "position" => $Employee->Employee->position->name
-            ];
+      
 
-         return response()->json([
-        'data' => $Employeedata
-    ]);
-
+        return response()->json($Employee);
     }
-    
-
-   
 }

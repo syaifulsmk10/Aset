@@ -18,9 +18,9 @@ class ApplicantController extends Controller
 
     public function index(Request $request)
     {
-        $query = Applicant::where('user_id', Auth::user()->id)->whereNull('delete_user');
+        $query = Applicant::with(['asset.category', 'user'])->where('user_id', Auth::user()->id)->whereNull('delete_user');
 
-
+        //search
         $search = $request->input('search');
         $query->where(function ($q) use ($search) {
             $q->orWhereHas('asset', function ($q) use ($search) {
@@ -31,48 +31,24 @@ class ApplicantController extends Controller
             });
         });
 
+        //Date
         if ($request->has("start_date") && $request->has('end_date')) {
             $startdate = $request->input("start_date");
             $enddate = $request->input("end_date");
-
             $query->whereBetween('submission_date', [$startdate, $enddate]);
         }
 
+        //status
         if ($request->has('status')) {
             $status = $request->input('status');
             $query->where('status', $status);
         }
 
+        //pagination
         $perpage = $request->input("per_page", 10);
-        return $applicants = $query->paginate($perpage);
-        // $applicantdata = [];
-        foreach ($applicants as $applicant) {
-            $applicantdata[] = [
-                "id" => $applicant->id,
-                "name" => $applicant->asset->asset_name,
-                "kategori" => $applicant->asset->category->name,
-                "tanggal pengajuan" => $applicant->submission_date,
-                "tanggal masa habis" => $applicant->expiry_date,
-                "tipe" => $applicant->type,
-                "status" => $applicant->status
-            ];
-        }
+        $applicants = $query->paginate($perpage);
 
-        // $applicantdata = collect($applicants)->map(function ($applicant) {
-        //     return [
-        //         "name" => $applicant->asset->asset_name,
-        //         "kategori" => $applicant->asset->category->name,
-        //         "tanggal pengajuan" => $applicant->submission_date,
-        //         "tanggal masa habis" => $applicant->expiry_date,
-        //         "tipe" => $applicant->type,
-        //         "status" => $applicant->status
-        //     ];
-        // })->all();
-
-        // return response()->json([
-        //     'applicantdata' => $applicantdata,
-
-        // ]);
+        return response()->json($applicants);
     }
 
 
@@ -94,7 +70,6 @@ class ApplicantController extends Controller
 
         $asset = Asset::find($request->asset_id);
         if ($asset) {
-
             if ($asset->status == 'Aktif' && $request->type == 1 && $asset->item_condition == "Baik") {
                 $applicant = Applicant::create([
                     'user_id' => Auth::user()->id,
@@ -106,15 +81,13 @@ class ApplicantController extends Controller
                 ]);
 
 
-
-
                 if ($request->hasFile('path')) {
                     $images = $request->file('path');
                     $imagePaths = [];
 
                     foreach ($images as $image) {
-                        $imageName = $image->getClientOriginalName();
-                        $image->move(public_path(), $imageName);
+                        $imageName = time() . '_' . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/applicant'), $imageName);
                         $imagePaths[] = $imageName;
                     }
 
@@ -150,8 +123,8 @@ class ApplicantController extends Controller
                     $imagePaths = [];
 
                     foreach ($images as $image) {
-                        $imageName = $image->getClientOriginalName();
-                        $image->move(public_path(), $imageName);
+                        $imageName = time() . '_' . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/applicant'), $imageName);
                         $imagePaths[] = $imageName;
                     }
 
@@ -165,8 +138,8 @@ class ApplicantController extends Controller
                     return response()->json([
                         "message" => "Success Add Applicant"
                     ], 200);
-                } else {
                 }
+
                 return response()->json([
                     'message' => 'Success Applicant'
                 ]);
@@ -184,7 +157,7 @@ class ApplicantController extends Controller
 
     public function delete($id)
     {
-        $Applicant = Applicant::find($id);
+        $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
         if (!$Applicant) {
             return response()->json([
                 'message' => 'Applicant not found.'
@@ -236,10 +209,6 @@ class ApplicantController extends Controller
             ], 404);
         }
 
-        // $images = collect($Applicant->image)->map(function ($image) {
-        //     return $image->path;
-        // })->all();
-
         $images = [];
         foreach ($Applicant->images as $image) {
             $images[] = $image->path;
@@ -257,7 +226,7 @@ class ApplicantController extends Controller
                 $data = json_decode($image->path, true);
 
                 return array_values(
-                    array_map(fn ($path) => env('APP_URL') . $path, $data)
+                    array_map(fn ($path) => env('APP_URL') . 'uploads/applicant/' . $path, $data)
                 );
             })->flatten(1)->all() // Kumpulkan URL gambar dalam array
         ];
@@ -296,7 +265,7 @@ class ApplicantController extends Controller
         if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
 
             if ($request->has('type') && $request->type != 1) {
-                return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+                return response()->json(['error' => 'Type ID cannot be changed.'], 400);
             }
 
             if ($request->has('asset_id')) {
@@ -339,7 +308,7 @@ class ApplicantController extends Controller
                 if ($oldImages) {
                     $oldImagePaths = json_decode($oldImages->path, true);
                     foreach ($oldImagePaths as $oldImagePath) {
-                        $oldImageFullPath = public_path('path/' . $oldImagePath);
+                        $oldImageFullPath = public_path('uploads/applicant/' . $oldImagePath);
                         if (file_exists($oldImageFullPath)) {
                             unlink($oldImageFullPath);
                         }
@@ -348,8 +317,8 @@ class ApplicantController extends Controller
                 }
 
                 foreach ($images as $image) {
-                    $imageName = $image->getClientOriginalName();
-                    $image->move(public_path(), $imageName);
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $image->move(public_path('uploads/applicant'), $imageName);
                     $imagePaths[] = $imageName;
                 }
 
@@ -408,7 +377,7 @@ class ApplicantController extends Controller
                 if ($oldImages) {
                     $oldImagePaths = json_decode($oldImages->path, true);
                     foreach ($oldImagePaths as $oldImagePath) {
-                        $oldImageFullPath = public_path('path/' . $oldImagePath);
+                        $oldImageFullPath = public_path('uploads/applicant/' . $oldImagePath);
                         if (file_exists($oldImageFullPath)) {
                             unlink($oldImageFullPath);
                         }
@@ -417,8 +386,8 @@ class ApplicantController extends Controller
                 }
 
                 foreach ($images as $image) {
-                    $imageName = $image->getClientOriginalName();
-                    $image->move(public_path(), $imageName);
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $image->move(public_path('uploads/applicant'), $imageName);
                     $imagePaths[] = $imageName;
                 }
 
@@ -440,30 +409,14 @@ class ApplicantController extends Controller
 
     public function detil($id)
     {
-        $Applicant =    Applicant::find($id);
+        $Applicant = Applicant::with(['asset', 'user'])->where('id', $id)->where('user_id', Auth::user()->id)->first();
+
         if (!$Applicant || $Applicant->status !== "Belum_Disetujui") {
             return response()->json([
                 'message' => 'Applicant not found.'
             ], 404);
         }
 
-
-
-        if ($Applicant && $Applicant->status == "Belum_Disetujui") {
-            $Applicantdata = [];
-            $Applicantdata[] = [
-
-                "name" => $Applicant->asset->asset_name,
-                "kategori" => $Applicant->asset->category->name,
-                "tanggal pengajuan" => $Applicant->submission_date,
-                "tanggal masa habis" => $Applicant->expiry_date,
-                "tipe" => $Applicant->type,
-                "status" => $Applicant->status
-            ];
-
-            return response()->json([
-                'data' => $Applicantdata
-            ]);
-        }
+        return response()->json($Applicant);
     }
 }

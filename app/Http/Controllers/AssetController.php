@@ -12,11 +12,7 @@ class AssetController extends Controller
 {
     public function index(Request $request)
     {
-
-
         $query = Asset::with('imageAssets', 'category');
-
-
 
         if (!$query) {
             return response()->json([
@@ -33,7 +29,6 @@ class AssetController extends Controller
                 });
         });
 
-
         if ($request->has('status')) {
             $status = $request->input('status');
             $query->where('status', $status);
@@ -45,8 +40,6 @@ class AssetController extends Controller
 
             $query->whereBetween('received_date', [$startDate, $endDate]);
         }
-
-
 
         $perPage = $request->input('per_page', 10); // Default items per page is 10
         $assets = $query->paginate($perPage);
@@ -67,25 +60,13 @@ class AssetController extends Controller
                     $data = json_decode($imageAsset->path, true);
 
                     return array_values(
-                        array_map(fn ($path) => env('APP_URL') . $path, $data)
+                        array_map(fn ($path) => env('APP_URL') . 'uploads/assets/' . $path, $data) 
                     );
                 })->flatten(1)->all()
             ];
         });
 
         return response()->json($assets);
-
-        // return response()->json([
-        //     'data' => $assets->items(),
-        //     // 'pagination' => [
-        //     //     'total' => $assets->total(),
-        //     //     'per_page' => $assets->perPage(),
-        //     //     'current_page' => $assets->currentPage(),
-        //     //     'last_page' => $assets->lastPage(),
-        //     //     'next_page_url' => $assets->nextPageUrl(),
-        //     //     'prev_page_url' => $assets->previousPageUrl()
-        //     // ]
-        // ]);
     }
 
     public function create(Request $request)
@@ -100,7 +81,7 @@ class AssetController extends Controller
             'expiration_date' => 'required|date',
             'status' => 'required|integer|max:6',
             'path' => 'required|array|min:1',
-            'path.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk setiap file path
+            'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk setiap file path
         ]);
 
         if ($validator->fails()) {
@@ -122,8 +103,8 @@ class AssetController extends Controller
             $imagePaths = [];
 
             foreach ($images as $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move(public_path(), $imageName);
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }
 
@@ -151,14 +132,13 @@ class AssetController extends Controller
             'received_date' => 'sometimes|required|date',
             'expiration_date' => 'sometimes|required|date',
             'status' => 'sometimes|required|integer|max:6',
-            'path' => 'required|array|min:1',
-            'path.*' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'path' => 'sometimes|required|array|min:1',
+            'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
-
 
         $asset = Asset::find($id);
 
@@ -167,7 +147,6 @@ class AssetController extends Controller
                 "message" => "asset not found"
             ]);
         }
-
 
         if ($request->has('asset_code')) {
             $asset->asset_code = $request->asset_code;
@@ -200,12 +179,11 @@ class AssetController extends Controller
             $images = $request->file('path');
             $imagePaths = [];
 
-
             $oldImages = ImageAsset::where('asset_id', $asset->id)->first();
             if ($oldImages) {
                 $oldImagePaths = json_decode($oldImages->path, true);
                 foreach ($oldImagePaths as $oldImagePath) {
-                    $oldImageFullPath = public_path('path/' . $oldImagePath);
+                    $oldImageFullPath = public_path('uploads/assets/' . $oldImagePath);
                     if (file_exists($oldImageFullPath)) {
                         unlink($oldImageFullPath);
                     }
@@ -214,8 +192,8 @@ class AssetController extends Controller
             }
 
             foreach ($images as $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move(public_path(), $imageName);
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }
 
@@ -244,25 +222,21 @@ class AssetController extends Controller
             $ImageAsset->delete();
         }
 
-
         return response()->json([
             'message' => 'Success delete Asset'
         ]);
     }
 
-
     public function detail($id)
     {
-        $Asset = Asset::find($id);
-        if (!$Asset) {
+        $asset = Asset::with('category')->find($id)->makeHidden('category_id');
+
+        if (!$asset) {
             return response()->json([
                 "message" => "asset not found"
             ]);
         }
-       
 
-        return response()->json([
-            'data' => $Asset
-        ]);
+        return response()->json($asset);
     }
 }

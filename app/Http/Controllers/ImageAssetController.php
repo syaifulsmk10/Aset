@@ -34,7 +34,7 @@ class ImageAssetController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show( $image_asset)
+    public function show($image_asset)
     {
         //
     }
@@ -42,7 +42,7 @@ class ImageAssetController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit( $image_asset)
+    public function edit($image_asset)
     {
         //
     }
@@ -58,7 +58,7 @@ class ImageAssetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $image_asset)
+    public function destroy($image_asset)
     {
         //
     }
