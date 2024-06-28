@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -150,7 +151,7 @@ class UserController extends Controller
             $user->save();
 
             if ($request->hasFile('foto')) {
-                $image_name = time() . '_' . $request->file('foto')->getClientOriginalName();
+                $image_name = 'VA'. Str::random(40) . $request->file('foto')->getClientOriginalName();
 
                 $request->file('foto')->move(public_path('uploads/profiles'), $image_name);
 

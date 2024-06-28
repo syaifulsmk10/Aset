@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ApplicantController extends Controller
 {
@@ -86,7 +87,7 @@ class ApplicantController extends Controller
                     $imagePaths = [];
 
                     foreach ($images as $image) {
-                        $imageName = time() . '_' . $image->getClientOriginalName();
+                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                         $image->move(public_path('uploads/applicant'), $imageName);
                         $imagePaths[] = $imageName;
                     }
@@ -123,7 +124,7 @@ class ApplicantController extends Controller
                     $imagePaths = [];
 
                     foreach ($images as $image) {
-                        $imageName = time() . '_' . $image->getClientOriginalName();
+                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                         $image->move(public_path('uploads/applicant'), $imageName);
                         $imagePaths[] = $imageName;
                     }
@@ -315,7 +316,7 @@ class ApplicantController extends Controller
                 }
 
                 foreach ($images as $image) {
-                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                     $image->move(public_path('uploads/applicant'), $imageName);
                     $imagePaths[] = $imageName;
                 }
@@ -384,7 +385,7 @@ class ApplicantController extends Controller
                 }
 
                 foreach ($images as $image) {
-                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                     $image->move(public_path('uploads/applicant'), $imageName);
                     $imagePaths[] = $imageName;
                 }

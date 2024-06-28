@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\ImageAsset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AssetController extends Controller
 {
@@ -102,7 +103,7 @@ class AssetController extends Controller
             $imagePaths = [];
 
             foreach ($images as $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
+                $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                 $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }
@@ -191,7 +192,7 @@ class AssetController extends Controller
             }
 
             foreach ($images as $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
+                $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                 $image->move(public_path('uploads/assets'), $imageName);
                 $imagePaths[] = $imageName;
             }

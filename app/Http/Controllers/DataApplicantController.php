@@ -88,6 +88,7 @@ class DataApplicantController extends Controller
             $images[] = $image->path;
         }
 
+        $dataApplicant = [];
         $dataApplicant = [
             "id" => $Applicant->id,
             "NameAsset" => $Applicant->asset->asset_name,
