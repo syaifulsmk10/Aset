@@ -4,93 +4,125 @@ namespace App\Http\Controllers;
 
 use App\Models\Position;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PositionController extends Controller
 {
     public function index()
     {
-        $position = Position::all();
-        return response()->json($position);
+        if (Auth::user()->role->id == 1) {
+            $position = Position::all();
+            return response()->json($position);
+        } else {
+            return response()->json([
+                "message" => "Your login not Admin"
+            ]);
+        }
     }
 
 
     public function create(Request $request)
     {
+        if (Auth::user()->role->id == 1) {
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
 
-        ]);
-        if ($validator->fails()) {
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            Position::create($request->all());
             return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
+                "message" => "success create position"
+            ]);
+        } else {
+            return response()->json([
+                "message" => "Your login not Admin"
+            ]);
         }
-
-        Position::create($request->all());
-        return response()->json([
-            "message" => "success create position"
-        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
+        if (Auth::user()->role->id == 1) {
+            $validator = Validator::make($request->all(), [
+                'name' => 'sometimes|required|string|max:255',
 
-        ]);
-        if ($validator->fails()) {
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $position = Position::find($id);
+
+
+            if (!$position) {
+                return response()->json([
+                    "message" => "Position Not Found"
+                ]);
+            }
+            if ($request->has('name')) {
+                $position->name = $request->name;
+                $position->save();
+            }
+
+
             return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-        $position = Position::find($id);
-
-
-        if (!$position) {
+                "message" => "sucess updae position"
+            ]);
+        } else {
             return response()->json([
-                "message" => "Position Not Found"
+                "message" => "Your login not Admin"
             ]);
         }
-        if ($request->has('name')) {
-            $position->name = $request->name;
-            $position->save();
-        }
-
-
-        return response()->json([
-            "message" => "sucess updae position"
-        ]);
     }
 
     public function delete($id)
     {
-        $position = position::find($id);
-        if (!$position) {
+        if (Auth::user()->role->id == 1) {
+            $position = position::find($id);
+            if (!$position) {
+                return response()->json([
+                    "message" => "Position Not Found"
+                ]);
+            }
+            $position->delete();
+
             return response()->json([
-                "message" => "Position Not Found"
+                "message" => "success delete position"
+            ]);
+        } else {
+            return response()->json([
+                "message" => "Your login not Admin"
             ]);
         }
-        $position->delete();
-
-        return response()->json([
-            "message" => "success delete position"
-        ]);
     }
 
     public function detail($id)
     {
-        $position = Position::find($id);
 
-        if (!$position) {
+        if (Auth::user()->role->id == 1) {
+            $position = Position::find($id);
+
+            if (!$position) {
+                return response()->json([
+                    "message" => "Position Not Found"
+                ]);
+            }
+
+            return response()->json($position);
+        } else {
             return response()->json([
-                "message" => "Position Not Found"
+                "message" => "Your login not Admin"
             ]);
         }
-
-        return response()->json($position);
     }
 }
