@@ -24,20 +24,23 @@ class UserController extends Controller
                 'data' => $validate
             ], 404);
         }
+
+
         $user = Auth::user();
         $token = $user->createToken('auth')->plainTextToken;
+        $userData = $user->toArray(); //
 
         if ($user->role_id == 1) {
             return response()->json([
                 'message' => 'Success Login Admin',
-                'data' => $validate,
+                'data' => $userData,
                 'token' => $token
             ], 200);
         }
 
         return response()->json([
             'message' => 'Success Login User',
-            'data' => $validate,
+            'data' => $userData,
             'token' => $token
         ], 200);
     }
