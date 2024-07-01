@@ -235,7 +235,7 @@ class DataApplicantController extends Controller
     {
         if (Auth::user()->role->id == 1) {
             $Applicant = Applicant::find($id);
-            if (!$Applicant) {
+            if (!$Applicant|| $Applicant->delete_admin != null) {
                 return response()->json([
                     "message" => "Applicant Not Found"
                 ]);

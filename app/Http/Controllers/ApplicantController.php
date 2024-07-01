@@ -177,7 +177,7 @@ class ApplicantController extends Controller
     {
         if (Auth::user()->role->id == 2) {
             $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
-            if (!$Applicant) {
+            if (!$Applicant || $Applicant->delete_user != null) {
                 return response()->json([
                     'message' => 'Applicant not found.'
                 ], 404);
@@ -267,6 +267,7 @@ class ApplicantController extends Controller
 
     public function update(Request $request, $id)
     {
+        
         if (Auth::user()->role->id == 2) {
             $validator = Validator::make($request->all(), [
                 'asset_id' => 'sometimes|required|exists:assets,id',
