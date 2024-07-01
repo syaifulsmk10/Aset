@@ -183,7 +183,7 @@ class ApplicantController extends Controller
                 ], 404);
             }
             $asset = Asset::find($Applicant->asset_id);
-            $image = Image::where('applicant_id', $Applicant->id)->first();
+            $image = image::where('applicant_id', $Applicant->id)->first();
             if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
                 $Applicant->update([
                     "delete_user" => now(),
