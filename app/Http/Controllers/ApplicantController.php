@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant;
 use App\Models\Asset;
-use App\Models\image;
+use App\Models\Image;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -104,7 +104,7 @@ class ApplicantController extends Controller
                             $imagePaths[] = $imageName;
                         }
 
-                        image::create([
+                        Image::create([
                             'applicant_id' => $applicant->id,
                             'path' => json_encode($imagePaths),
                         ]);
@@ -141,7 +141,7 @@ class ApplicantController extends Controller
                             $imagePaths[] = $imageName;
                         }
 
-                        image::create([
+                        Image::create([
                             'applicant_id' => $applicant->id,
                             'path' => json_encode($imagePaths),
                         ]);
@@ -183,7 +183,7 @@ class ApplicantController extends Controller
                 ], 404);
             }
             $asset = Asset::find($Applicant->asset_id);
-            $image = image::where('applicant_id', $Applicant->id)->first();
+            $image = Image::where('applicant_id', $Applicant->id)->first();
             if ($Applicant->status == "Disetujui" || $Applicant->status == "Ditolak") {
                 $Applicant->update([
                     "delete_user" => now(),
@@ -333,7 +333,7 @@ class ApplicantController extends Controller
                     $imagePaths = [];
 
 
-                    $oldImages = image::where('applicant_id', $Applicant->id)->first();
+                    $oldImages = Image::where('applicant_id', $Applicant->id)->first();
                     if ($oldImages) {
                         $oldImagePaths = json_decode($oldImages->path, true);
                         foreach ($oldImagePaths as $oldImagePath) {
@@ -351,7 +351,7 @@ class ApplicantController extends Controller
                         $imagePaths[] = $imageName;
                     }
 
-                    image::create([
+                    Image::create([
                         'applicant_id' => $Applicant->id,
                         'path' => json_encode($imagePaths),
                     ]);
@@ -402,7 +402,7 @@ class ApplicantController extends Controller
                     $imagePaths = [];
 
 
-                    $oldImages = image::where('applicant_id', $Applicant->id)->first();
+                    $oldImages = Image::where('applicant_id', $Applicant->id)->first();
                     if ($oldImages) {
                         $oldImagePaths = json_decode($oldImages->path, true);
                         foreach ($oldImagePaths as $oldImagePath) {
@@ -420,7 +420,7 @@ class ApplicantController extends Controller
                         $imagePaths[] = $imageName;
                     }
 
-                    image::create([
+                    Image::create([
                         'applicant_id' => $Applicant->id,
                         'path' => json_encode($imagePaths),
                     ]);
