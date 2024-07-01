@@ -34,7 +34,11 @@ class AssetController extends Controller
 
             if ($request->has('status')) {
                 $status = $request->input('status');
-                $query->where('status', $status);
+                if (is_array($status)) {
+                    $query->whereIn('status', $status);
+                } else {
+                    $query->where('status', $status);
+                }
             }
 
             if ($request->has('start_date') && $request->has('end_date')) {
