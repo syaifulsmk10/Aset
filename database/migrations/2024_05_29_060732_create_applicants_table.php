@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('applicants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete("cascade");
-            $table->foreignId('asset_id')->constrained('assets')->onDelete("cascade");
+            $table->foreignId('asset_id');
             $table->dateTime('submission_date');
             $table->dateTime('expiry_date');
             $table->dateTime('accepted_at')->nullable();

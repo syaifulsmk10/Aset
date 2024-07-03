@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Applicant;
 use App\Models\Asset;
 use App\Models\ImageAsset;
 use Illuminate\Http\Request;
@@ -248,6 +249,11 @@ class AssetController extends Controller
             $ImageAsset = ImageAsset::where('asset_id', $asset->id)->first();
             if ($ImageAsset) {
                 $ImageAsset->delete();
+            }
+
+            $Applicant = Applicant::where('asset_id', $asset->id)->where('status', 1)->first();
+            if ($Applicant) {
+                $Applicant->delete();
             }
 
             return response()->json([
