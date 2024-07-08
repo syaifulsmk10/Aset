@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/applicant')->group(function () {
     Route::get('/index', [ApplicantController::class, 'index']); //done
+    Route::get('/getaset', [ApplicantController::class, 'getaset']); //done
     Route::get('/index/{id}', [ApplicantController::class, 'detail']);  //done
     Route::get('/detail/{id}', [ApplicantController::class, 'detil']); //done
     Route::post('/create', [ApplicantController::class, 'create']); //done

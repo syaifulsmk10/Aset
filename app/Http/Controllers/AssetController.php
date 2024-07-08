@@ -94,7 +94,7 @@ class AssetController extends Controller
                 'price' => 'required|numeric',
                 'received_date' => 'required|date',
                 'expiration_date' => 'required|date',
-                'status' => 'required|integer|max:6',
+                'status' => 'required|integer|max:8',
                 'path' => 'required|array|min:1',
                 'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk setiap file path
             ]);
@@ -251,10 +251,6 @@ class AssetController extends Controller
                 $ImageAsset->delete();
             }
 
-            $Applicant = Applicant::where('asset_id', $asset->id)->where('status', 1)->first();
-            if ($Applicant) {
-                $Applicant->delete();
-            }
 
             return response()->json([
                 'message' => 'Success delete Asset'

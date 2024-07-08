@@ -482,4 +482,26 @@ class ApplicantController extends Controller
             ]);
         }
     }
+
+
+    public function getaset()
+    {   
+        $assets = Asset::where('status', 1 )->get();
+
+        if ($assets->isEmpty()) {
+            return response()->json([
+                "message" => "asset not found"
+            ]);
+        }
+
+        $dataasset = [];
+        foreach ($assets as $asset) {
+            $dataasset[] = [
+                "asset_name" => $asset->asset_name
+            ];
+        }
+
+        return response()->json($dataasset);
+    }
+
 }
