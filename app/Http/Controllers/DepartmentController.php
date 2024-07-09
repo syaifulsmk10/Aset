@@ -12,7 +12,7 @@ class DepartmentController extends Controller
 
     public function index()
     {
-        if (Auth::user()->role->id == 1) {
+        if (Auth::user()->role->id == 1 || Auth::user()->role->id == 2) {
             $Department = Department::all();
             return response()->json($Department);
         } else {

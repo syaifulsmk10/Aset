@@ -266,38 +266,18 @@ class AssetController extends Controller
     {
 
         if (Auth::user()->role->id == 1) {
-            $asset = Asset::with('category', 'imageAssets')->find($id)->makeHidden('category_id');
+            $asset = Asset::with('category', 'imageAssets')->find($id);
 
             if (!$asset) {
                 return response()->json([
-                    "message" => "asset not found"
+                    "message" => "asset not found" 
                 ]);
             }
-            $images = [];
-            foreach ($asset->imageAssets as $image) {
-                $images[] = $image->path;
-            }
+            $asset->imageAssets->each(function ($imageAsset) {
+                $imageAsset->path = json_decode($imageAsset->path, true);
+            });
 
-            $dataApplicant = [
-                'id' => $asset->id,
-                'asset_code' => $asset->asset_code,
-                'asset_name' => $asset->asset_name,
-                'category' => $asset->category->name,
-                'item_condition' => $asset->item_condition,
-                'price' => $asset->price,
-                'received_date' => $asset->received_date,
-                'expiration_date' => $asset->expiration_date,
-                'status' => $asset->status,
-                'image' => $asset->imageAssets->map(function ($imageAsset) {
-                    $data = json_decode($imageAsset->path, true);
-
-                    return array_values(
-                        array_map(fn($path) => $path, $data)
-                    );
-                })->flatten(1)->all()
-            ];
-
-            return response()->json($dataApplicant);
+            return response()->json($asset);
             
         } else {
             return response()->json([

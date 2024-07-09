@@ -445,7 +445,7 @@ class ApplicantController extends Controller
     public function detil($id)
     {
         if (Auth::user()->role->id == 2) {
-            $Applicant = Applicant::with(['asset', 'user'])->where('id', $id)->where('user_id', Auth::user()->id)->first();
+            $Applicant = Applicant::with(['asset', 'user', 'images'])->where('id', $id)->where('user_id', Auth::user()->id)->first();
 
             if (!$Applicant || $Applicant->status !== "Belum_Disetujui") {
                 return response()->json([
@@ -453,29 +453,12 @@ class ApplicantController extends Controller
                 ], 404);
             }
 
-            $images = [];
-            foreach ($Applicant->images as $image) {
-                $images[] = $image->path;
-            }
+            $Applicant->images->each(function ($image) {
+                $image->path = json_decode($image->path, true);
+            });
 
-            $dataApplicant = [
-                "id" => $Applicant->id,
-                "NameAsset" => $Applicant->asset->asset_name,
-                "Category" => $Applicant->asset->category->name,
-                "SubmissionDate" => $Applicant->submission_date,
-                "ExpiryDate" => $Applicant->expiry_date,
-                "UserApplicants" => $Applicant->user->name,
-                "type" => $Applicant->type,
-                "Images" => $Applicant->images->map(function ($image) {
-                    $data = json_decode($image->path, true);
-
-                    return array_values(
-                        array_map(fn ($path) =>  $path, $data)
-                    );
-                })->flatten(1)->all() // Kumpulkan URL gambar dalam array
-            ];
-
-            return response()->json($dataApplicant);
+          
+            return response()->json($Applicant);
         } else {
             return response()->json([
                 "message" => "Your login not User"
@@ -497,6 +480,7 @@ class ApplicantController extends Controller
         $dataasset = [];
         foreach ($assets as $asset) {
             $dataasset[] = [
+                "id" => $asset->id,
                 "asset_name" => $asset->asset_name
             ];
         }

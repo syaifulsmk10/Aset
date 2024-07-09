@@ -11,7 +11,7 @@ class PositionController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->role->id == 1) {
+        if (Auth::user()->role->id == 1 || Auth::user()->role->id == 2) {
             $position = Position::all();
             return response()->json($position);
         } else {
