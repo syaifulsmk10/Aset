@@ -244,7 +244,7 @@ class EmployeeController extends Controller
     public function detail($id)
     {
         if (Auth::user()->role->id == 1) {
-            $Employee = User::with(['employee.department', 'employee.position'])->where('role_id', 2)->first();
+            $Employee = User::with(['employee.department', 'employee.position'])->where('role_id', 2)->where('id', $id)->first();
             if (!$Employee) {
                 return response()->json([
                     "message" => "Emplployee not found"
