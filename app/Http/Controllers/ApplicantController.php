@@ -491,13 +491,15 @@ class ApplicantController extends Controller
 
     public function getaset()
     {
-        $assets = Asset::where('status', 1 ||'status', 3)->get();
+        $assets = Asset::whereIn('status', [1, 3])->get();
 
         if ($assets->isEmpty()) {
             return response()->json([
                 "message" => "asset not found"
             ]);
         }
+
+        dd($assets);
 
         $dataasset = [];
         foreach ($assets as $asset) {
