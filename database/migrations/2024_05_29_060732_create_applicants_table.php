@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete("cascade");
             $table->foreignId('asset_id')->constrained('assets')->onDelete("cascade");
-            $table->dateTime('submission_date');
-            $table->dateTime('expiry_date');
+            $table->dateTime('submission_date')->nullable();;
+            $table->dateTime('expiry_date')->nullable();;
             $table->dateTime('accepted_at')->nullable();
             $table->dateTime('denied_at')->nullable();
             $table->enum('type', ['1', '2']);

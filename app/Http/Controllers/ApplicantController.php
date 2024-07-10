@@ -68,23 +68,23 @@ class ApplicantController extends Controller
     public function create(Request $request)
     {
         if (Auth::user()->role->id == 2) {
-            $validator = Validator::make($request->all(), [
-                'asset_id' => 'required|exists:assets,id',
-                'submission_date' => 'required|date',
-                'expiry_date' => 'required|date|after:submission_date',
-                'type' => 'required|in:1,2',
-                'path' => 'required|array|min:1',
-                'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 400);
-            }
-
+           
 
             $asset = Asset::find($request->asset_id);
             if ($asset) {
                 if ($asset->status == 'Aktif' && $request->type == 1 && $asset->item_condition == "Baik") {
+                    $validator = Validator::make($request->all(), [
+                        'asset_id' => 'required|exists:assets,id',
+                        'submission_date' => 'required|date',
+                        'expiry_date' => 'required|date|after:submission_date',
+                        'type' => 'required|in:1,2',
+                        'path' => 'required|array|min:1',
+                        'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return response()->json(['error' => $validator->errors()], 400);
+                    }
                     $applicant = Applicant::create([
                         'user_id' => Auth::user()->id,
                         'asset_id' => $request->asset_id,
@@ -123,11 +123,20 @@ class ApplicantController extends Controller
                         ], 200);
                     }
                 } elseif ($asset->status == 'Dipinjamkan' && $request->type == 2) {
+
+                     $validator = Validator::make($request->all(), [
+                'asset_id' => 'required|exists:assets,id',
+                'type' => 'required|in:1,2',
+                'path' => 'required|array|min:1',
+                'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 400);
+            }
                     $applicant = Applicant::create([
                         'user_id' => Auth::user()->id,
                         'asset_id' => $request->asset_id,
-                        'submission_date' => $request->submission_date,
-                        'expiry_date' => $request->expiry_date,
                         'type' => $request->type,
                         'status' => 1,
                     ]);
@@ -270,6 +279,8 @@ class ApplicantController extends Controller
     {
 
         if (Auth::user()->role->id == 2) {
+
+            
             $validator = Validator::make($request->all(), [
                 'asset_id' => 'sometimes|required|exists:assets,id',
                 'submission_date' => 'sometimes|required|date',
