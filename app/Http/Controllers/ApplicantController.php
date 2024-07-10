@@ -491,7 +491,7 @@ class ApplicantController extends Controller
 
     public function getaset()
     {
-        $assets = Asset::where('status', 1)->get();
+        $assets = Asset::where('status', 1 ||'status', 3)->get();
 
         if ($assets->isEmpty()) {
             return response()->json([
