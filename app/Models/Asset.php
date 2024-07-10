@@ -28,15 +28,8 @@ class Asset extends Model
         return $this->hasMany(Applicant::class);
     }
 
-     public function getItemConditionAttribute($value)
-    {
-        return ItemCondition::fromValue((int) $value)->key;
-    }
-
-    public function getStatusAttribute($value)
-    {
-        return Status::fromValue((int) $value)->key;
-    }
+   
+  
 
     public function getImageAttribute($value)
         {
