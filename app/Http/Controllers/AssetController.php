@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ItemCondition;
+use App\Enums\Status;
 use App\Models\Applicant;
 use App\Models\Asset;
 use App\Models\ImageAsset;
@@ -144,17 +146,16 @@ class AssetController extends Controller
 
     public function update(Request $request, $id)
     {
-
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
                 'asset_code' => 'sometimes|required|string|max:10',
                 'asset_name' => 'sometimes|required|string|max:255',
                 'category_id' => 'sometimes|required|integer|exists:categories,id',
-                'item_condition' => 'sometimes|required|integer|max:7',
+                'item_condition' => 'sometimes|required|string|in:Baik,Perlu_Perbaikan,Rusak,Dalam_Perbaikan,Tidak_Aktif,Hilang,Tidak_Layak_Pakai', // Validasi nilai enum sebagai string
                 'price' => 'sometimes|required|numeric',
                 'received_date' => 'sometimes|required|date',
                 'expiration_date' => 'sometimes|required|date',
-                'status' => 'sometimes|required|integer|max:6',
+                'status' => 'sometimes|required|string|in:Aktif,Tidak_Aktif,Dipinjamkan,Dalam_Pemeliharaan,Dalam_Penyimpanan,Dalam_Perbaikan,Dalam_Proses_Peminjaman,Tidak_Layak_Pakai', // Validasi nilai enum status sebagai string
                 'path' => 'sometimes|required|array|min:1',
                 'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -171,6 +172,14 @@ class AssetController extends Controller
                 ]);
             }
 
+            if ($request->has('item_condition')) {
+                $asset->item_condition = ItemCondition::getValue($request->item_condition);
+            }
+
+            if ($request->has('status')) {
+                $asset->status = Status::getValue($request->status);
+            }
+
             if ($request->has('asset_code')) {
                 $asset->asset_code = $request->asset_code;
             }
@@ -179,9 +188,6 @@ class AssetController extends Controller
             }
             if ($request->has('category_id')) {
                 $asset->category_id = $request->category_id;
-            }
-            if ($request->has('item_condition')) {
-                $asset->item_condition = $request->item_condition;
             }
             if ($request->has('price')) {
                 $asset->price = $request->price;
@@ -225,13 +231,14 @@ class AssetController extends Controller
                     'path' => json_encode($imagePaths),
                 ]);
             }
+
             return response()->json([
                 "message" => "Success Update Asset"
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your login not admin"
-            ]); 
+            ]);
         }
     }
 
@@ -273,6 +280,7 @@ class AssetController extends Controller
                     "message" => "asset not found" 
                 ]);
             }
+            
             $asset->imageAssets->each(function ($imageAsset) {
                 $imageAsset->path = json_decode($imageAsset->path, true);
             });
