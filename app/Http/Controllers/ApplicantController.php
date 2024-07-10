@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Type;
 use App\Models\Applicant;
 use App\Models\Asset;
 use App\Models\Image;
@@ -267,13 +268,13 @@ class ApplicantController extends Controller
 
     public function update(Request $request, $id)
     {
-        
+
         if (Auth::user()->role->id == 2) {
             $validator = Validator::make($request->all(), [
                 'asset_id' => 'sometimes|required|exists:assets,id',
                 'submission_date' => 'sometimes|required|date',
                 'expiry_date' => 'sometimes|required|date|after:submission_date',
-                'type' => 'sometimes|required|in:1,2',
+                'type' => 'sometimes|required|in:Peminjaman,Pengembalian',
                 'path.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
@@ -289,12 +290,16 @@ class ApplicantController extends Controller
             }
             $oldAsset = Asset::find($Applicant->asset_id);
 
+            if ($request->has('type')) {
+                $Applicant->type = Type::getValue($request->type);
+            }
+
 
 
 
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
 
-                if ($request->has('type') && $request->type != 1) {
+                if ($request->has('type') && $request->type != "Peminjaman") {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
                 }
 
@@ -368,10 +373,14 @@ class ApplicantController extends Controller
                 ]);
             }
 
+            if ($request->has('type')) {
+                $Applicant->type = Type::getValue($request->type);
+            }
+
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dipinjamkan') {
 
 
-                if ($request->has('type') && $request->type != 2) {
+                if ($request->has('type') && $request->type != "Pengembalian") {
                     return response()->json(['error' => 'type cannot be changed.'], 400);
                 }
 
@@ -457,7 +466,7 @@ class ApplicantController extends Controller
                 $image->path = json_decode($image->path, true);
             });
 
-          
+
             return response()->json($Applicant);
         } else {
             return response()->json([
@@ -468,8 +477,8 @@ class ApplicantController extends Controller
 
 
     public function getaset()
-    {   
-        $assets = Asset::where('status', 1 )->get();
+    {
+        $assets = Asset::where('status', 1)->get();
 
         if ($assets->isEmpty()) {
             return response()->json([
@@ -487,5 +496,4 @@ class ApplicantController extends Controller
 
         return response()->json($dataasset);
     }
-
 }
