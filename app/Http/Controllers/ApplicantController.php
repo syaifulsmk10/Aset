@@ -137,6 +137,8 @@ class ApplicantController extends Controller
                     $applicant = Applicant::create([
                         'user_id' => Auth::user()->id,
                         'asset_id' => $request->asset_id,
+                        'submission_date' => $request->submission_date,
+                        'expiry_date' => $request->expiry_date,
                         'type' => $request->type,
                         'status' => 1,
                     ]);
