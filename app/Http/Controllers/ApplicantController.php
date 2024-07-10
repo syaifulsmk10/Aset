@@ -499,7 +499,6 @@ class ApplicantController extends Controller
             ]);
         }
 
-        dd($assets);
 
         $dataasset = [];
         foreach ($assets as $asset) {
