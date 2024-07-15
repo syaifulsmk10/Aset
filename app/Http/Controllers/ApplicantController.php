@@ -127,6 +127,8 @@ class ApplicantController extends Controller
                      $validator = Validator::make($request->all(), [
                 'asset_id' => 'required|exists:assets,id',
                 'type' => 'required|in:1,2',
+                'submission_date' => 'nullable|date',
+                'expiry_date' => 'nullable|date|after:submission_date',
                 'path' => 'required|array|min:1',
                 'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
