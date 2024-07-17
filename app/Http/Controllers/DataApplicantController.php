@@ -117,6 +117,7 @@ class DataApplicantController extends Controller
                 "ExpiryDate" => $Applicant->expiry_date,
                 "UserApplicants" => $Applicant->user->name,
                 "type" => $Applicant->type,
+                'status' => $Applicant->status,
                 "Images" => $Applicant->images->map(function ($image) {
                     $data = json_decode($image->path, true);
 
