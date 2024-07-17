@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/detail/{id}', [EmployeeController::class, 'detail']);  //done
     Route::post('/update/{id}', [EmployeeController::class, 'update']);  //done
     Route::delete('/delete/{id}', [EmployeeController::class, 'delete']);  //done
-    Route::delete('/reset', [EmployeeController::class, 'reset']);  //done 
+    Route::delete('/destroy', [EmployeeController::class, 'destroy']);  //done 
 });
 
     Route::prefix('/applicant')->group(function () {
@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create', [ApplicantController::class, 'create']); //done
     Route::post('/update/{id}', [ApplicantController::class, 'update']); //done
     Route::delete('/delete/{id}', [ApplicantController::class, 'delete']);  //done
+    Route::delete('/destroy', [ApplicantController::class, 'destroy']);  //done
 });
 
     Route::prefix('/data/applicant')->group(function () {
@@ -63,7 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/accepted/{id}', [DataApplicantController::class, 'accept']);  
     Route::post('/denied/{id}', [DataApplicantController::class, 'denied']) ; 
     Route::delete('/delete/{id}', [DataApplicantController::class, 'delete']); 
-    Route::delete('/reset', [DataApplicantController::class, 'reset']); 
+    Route::delete('/destroy', [DataApplicantController::class, 'destroy']); 
 });
 
 Route::prefix('/aset')->group(function () {
@@ -72,6 +73,7 @@ Route::prefix('/aset')->group(function () {
     Route::post('/create', [AssetController::class, 'create']); //done
     Route::post('/update/{id}', [AssetController::class, 'update']); //done
     Route::delete('/delete/{id}', [AssetController::class, 'delete']); //done
+    Route::delete('/destroy', [AssetController::class, 'destroy']);
 });  
 
 

@@ -512,4 +512,60 @@ class ApplicantController extends Controller
 
         return response()->json($dataasset);
     }
+
+        public function destroy(Request $request)
+    {
+        if (Auth::user()->role->id != 2) {
+            return response()->json([
+                "message" => "Your login is not a user"
+            ]);
+        }
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:applicants,id',
+        ]);
+
+        $applicants = Applicant::whereIn('id', $request->ids)
+            ->where('user_id', Auth::user()->id)
+            ->get();
+
+        foreach ($applicants as $applicant) {
+            if (!$applicant || $applicant->delete_user != null) {
+                continue;
+            }
+
+            $asset = Asset::find($applicant->asset_id);
+            $image = Image::where('applicant_id', $applicant->id)->first();
+
+            if ($applicant->status == "Disetujui" || $applicant->status == "Ditolak") {
+                $applicant->update([
+                    "delete_user" => now(),
+                ]);
+            } elseif ($applicant->status == "Belum_Disetujui" && $applicant->type == "Peminjaman") {
+                $applicant->delete();
+                if ($image) {
+                    $image->delete();
+                }
+                if ($asset) {
+                    $asset->update([
+                        'status' => 1,
+                    ]);
+                }
+            } elseif ($applicant->type == "Pengembalian" && $applicant->status == "Belum_Disetujui") {
+                $applicant->delete();
+                if ($image) {
+                    $image->delete();
+                }
+                if ($asset) {
+                    $asset->update([
+                        'status' => 3,
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            "message" => "Selected applicants successfully updated"
+        ]);
+    }
 }

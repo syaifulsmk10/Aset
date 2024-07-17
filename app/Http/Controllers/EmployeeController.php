@@ -271,4 +271,37 @@ class EmployeeController extends Controller
         }
 
     }
+
+    public function destroy(Request $request)
+    {
+        if (Auth::user()->role->id != 1) {
+            return response()->json([
+                "message" => "Your login is not admin"
+            ]);
+        }
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+        ]);
+
+        $users = User::whereIn('id', $request->ids)->get();
+
+        foreach ($users as $user) {
+            if (!$user) {
+                continue;
+            }
+
+            $user->delete();
+
+            $employee = Employee::where('user_id', $user->id)->first();
+            if ($employee) {
+                $employee->delete();
+            }
+        }
+
+        return response()->json([
+            "message" => "Selected users and their employees successfully deleted"
+        ]);
+    }
 }

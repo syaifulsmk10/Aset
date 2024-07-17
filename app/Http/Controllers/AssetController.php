@@ -294,4 +294,17 @@ class AssetController extends Controller
         }
 
     }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:assets,id',
+        ]);
+
+      
+        Asset::whereIn('id', $request->ids)->delete();
+
+        return response()->json(['message' => 'Aset yang dipilih berhasil dihapus.']);
+    }
 }

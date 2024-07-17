@@ -258,7 +258,44 @@ class DataApplicantController extends Controller
             return response()->json([
                 "message" => "Your login not admin"
             ]);
-        }
+        }   
     }
 
+    public function destroy(Request $request)
+    {
+        if (Auth::user()->role->id != 1) {
+            return response()->json([
+                "message" => "Your login is not admin"
+            ]);
+        }
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:applicants,id',
+        ]);
+
+        $applicants = Applicant::whereIn('id', $request->ids)->get();
+
+        foreach ($applicants as $applicant) {
+            if ($applicant->delete_admin != null) {
+                return response()->json([
+                    "message" => "Applicant Not Found or Already Deleted"
+                ]);
+            }
+
+            if ($applicant->status == "Disetujui" || $applicant->status == "Ditolak") {
+                $applicant->update([
+                    "delete_admin" => now(),
+                ]);
+            } else {
+                return response()->json([
+                    "message" => "Can't Update, Please Approve/Reject First"
+                ]);
+            }
+        }
+
+        return response()->json([
+            "message" => "Selected applicants successfully updated"
+        ]);
+    }
 }
