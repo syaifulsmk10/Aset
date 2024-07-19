@@ -42,6 +42,8 @@ class EmployeeController extends Controller
 
             $perpage = $request->input('per_page', 10);
             $users = $query->paginate($perpage);
+            $totalpage = $users->lastPage();
+            
 
             // $user_data = collect($users)->map(function($user){
             //         return  [
@@ -62,7 +64,10 @@ class EmployeeController extends Controller
                     "position" => $user->Employee->position->name
                 ];
             }
-            return response()->json($users);
+            return response()->json([
+                "users" => $users,
+                "total_page" => $totalpage,
+            ]);
         } else {
             return response()->json([
                 "message" => "Your login not admin"

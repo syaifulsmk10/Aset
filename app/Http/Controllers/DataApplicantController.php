@@ -64,6 +64,7 @@ class DataApplicantController extends Controller
 
             $perpage = $request->input('per_page', 10);
             $applicants = $query->paginate($perpage);
+            $totalpage = $applicants->lastPage();
 
             foreach ($applicants as $applicant) {
                 $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
@@ -80,7 +81,10 @@ class DataApplicantController extends Controller
                     "type" => $applicant->type
                 ];
             }
-            return response()->json($applicants);
+            return response()->json([
+                "applicant" => $applicants,
+                "total_page" => $totalpage
+            ]);
 
         } else {
             return response()->json([

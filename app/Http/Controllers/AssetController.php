@@ -53,6 +53,7 @@ class AssetController extends Controller
 
             $perPage = $request->input('per_page', 10); // Default items per page is 10
             $assets = $query->paginate($perPage);
+            $totalpage = $assets->lastPage();
 
             $assets->getCollection()->transform(function ($asset) {
 
@@ -76,7 +77,10 @@ class AssetController extends Controller
                 ];
             });
 
-            return response()->json($assets);
+            return response()->json([
+                "assets" =>$assets,
+                "total_page" => $totalpage
+            ]);
         }else{
             return response()->json([
                 "message" => "Your login not admin"

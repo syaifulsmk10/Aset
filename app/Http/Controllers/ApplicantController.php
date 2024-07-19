@@ -54,8 +54,13 @@ class ApplicantController extends Controller
             //pagination
             $perpage = $request->input("per_page", 10);
             $applicants = $query->paginate($perpage);
+            $totalpage = $applicants->lastPage();
 
-            return response()->json($applicants);
+            return response()->json([
+                "applicants" => $applicants,
+                "total_page" => $totalpage
+            ]);
+
         } else {
             return response()->json([
                 "message" => "Your login not User"
