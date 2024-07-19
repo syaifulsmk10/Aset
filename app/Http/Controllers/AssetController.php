@@ -78,7 +78,7 @@ class AssetController extends Controller
             });
 
             return response()->json([
-                "assets" =>$assets,
+                "data" =>$assets,
                 "total_page" => $totalpage
             ]);
         }else{

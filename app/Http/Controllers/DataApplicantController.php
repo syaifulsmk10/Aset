@@ -82,7 +82,7 @@ class DataApplicantController extends Controller
                 ];
             }
             return response()->json([
-                "applicant" => $applicants,
+                "data" => $applicants,
                 "total_page" => $totalpage
             ]);
 

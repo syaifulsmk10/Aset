@@ -57,7 +57,7 @@ class ApplicantController extends Controller
             $totalpage = $applicants->lastPage();
 
             return response()->json([
-                "applicants" => $applicants,
+                "data" => $applicants,
                 "total_page" => $totalpage
             ]);
 

@@ -65,7 +65,7 @@ class EmployeeController extends Controller
                 ];
             }
             return response()->json([
-                "users" => $users,
+                "data" => $users,
                 "total_page" => $totalpage,
             ]);
         } else {
