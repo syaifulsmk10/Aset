@@ -181,7 +181,7 @@ class AssetController extends Controller
             }
 
             if ($request->has('status')) {
-                $asset->status = Status::getValue($request->status);
+                $asset->status = Status::getValue($request->status); // pastikan enum ini merubah string menjadi integer
             }
 
             if ($request->has('asset_code')) {
@@ -201,9 +201,6 @@ class AssetController extends Controller
             }
             if ($request->has('expiration_date')) {
                 $asset->expiration_date = $request->expiration_date;
-            }
-            if ($request->has('status')) {
-                $asset->status = $request->status;
             }
 
             $asset->save();
