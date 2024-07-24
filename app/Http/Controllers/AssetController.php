@@ -6,6 +6,7 @@ use App\Enums\ItemCondition;
 use App\Enums\Status;
 use App\Models\Applicant;
 use App\Models\Asset;
+use App\Models\Category;
 use App\Models\ImageAsset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -93,7 +94,7 @@ class AssetController extends Controller
 
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
-                'asset_code' => 'required|string|max:10',
+                'asset_code' => 'required|string|max:5',
                 'asset_name' => 'required|string|max:255',
                 'category_id' => 'required|integer|exists:categories,id',
                 'item_condition' => 'required|integer|max:7',
@@ -109,8 +110,11 @@ class AssetController extends Controller
                 return response()->json(['error' => $validator->errors()], 400);
             }
 
+            $category = Category::find($request->category_id);
+ 
+
             $Asset = Asset::create([
-                'asset_code' => $request->asset_code,
+                'asset_code' => strtoupper(substr($category->name, 0, 1)) . $request->asset_code,
                 'asset_name' => $request->asset_name,
                 'category_id' => $request->category_id,
                 'item_condition' => $request->item_condition,
@@ -150,6 +154,7 @@ class AssetController extends Controller
 
     public function update(Request $request, $id)
     {
+        
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
                 'asset_code' => 'sometimes|required|string|max:10',
@@ -169,6 +174,7 @@ class AssetController extends Controller
             }
 
             $asset = Asset::find($id);
+            $category = Category::find($request->category_id);
 
             if (!$asset) {
                 return response()->json([
@@ -185,7 +191,7 @@ class AssetController extends Controller
             }
 
             if ($request->has('asset_code')) {
-                $asset->asset_code = $request->asset_code;
+                $asset->asset_code = strtoupper(substr($asset->asset_name, 0, 1)) . $request->asset_code;
             }
             if ($request->has('asset_name')) {
                 $asset->asset_name = $request->asset_name;
@@ -272,29 +278,47 @@ class AssetController extends Controller
 
     public function detail($id)
     {
+        // Temukan asset berdasarkan ID
+        $asset = Asset::find($id);
 
-        if (Auth::user()->role->id == 1) {
-            $asset = Asset::with('category', 'imageAssets')->find($id);
-
-            if (!$asset) {
-                return response()->json([
-                    "message" => "asset not found" 
-                ]);
-            }
-            
-            $asset->imageAssets->each(function ($imageAsset) {
-                $imageAsset->path = json_decode($imageAsset->path, true);
-            });
-
-            return response()->json($asset);
-            
-        } else {
-            return response()->json([
-                "message" => "Your login not admin"
-            ]);
+        if (!$asset) {
+            return response()->json(['error' => 'Asset not found'], 404);
         }
 
+        // Ambil informasi gambar terkait dengan asset
+        $imageAsset = ImageAsset::where('asset_id', $asset->id)->first();
+
+        $imagePaths = [];
+        if ($imageAsset) {
+            $imagePaths = json_decode($imageAsset->path, true);
+        }
+
+        // Buat respons dengan detail asset dan informasi gambar
+        $response = [
+            'asset' => [
+                'id' => $asset->id,
+                'asset_code' => $asset->asset_code,
+                'asset_name' => $asset->asset_name,
+                'category_id' => $asset->category_id,
+                'item_condition' => $asset->item_condition,
+                'price' => $asset->price,
+                'received_date' => $asset->received_date,
+                'expiration_date' => $asset->expiration_date,
+                'status' => $asset->status,
+            ],
+            'image_assets' => []
+        ];
+
+        foreach ($imagePaths as $path) {
+            $response['image_assets'][] = [
+                'asset_id' => $asset->id,
+                'path' => asset('uploads/assets/' . $path),
+            ];
+        }
+
+        return response()->json($response, 200);
     }
+
 
     public function destroy(Request $request)
     {

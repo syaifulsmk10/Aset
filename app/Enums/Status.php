@@ -19,4 +19,5 @@ final class Status extends Enum
     const Dalam_Perbaikan = 6;
     const Dalam_Proses_Peminjaman = 7;
     const Tidak_Layak_Pakai = 8;
+    const Dalam_Proses_Pengembalian = 9;
 }

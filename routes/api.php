@@ -29,12 +29,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::post("/login", [UserController::class, 'postLogin'])->name("login"); //done
-Route::post('/register', [UserController::class, 'registerUser']); 
+Route::post('/register', [UserController::class, 'registerUser']);
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detail', [UserController::class, 'getUser']);  //done
     Route::post('/update', [UserController::class, 'update']); //done
+    Route::get('/navbar', [UserController::class, 'navbar']); //done
     Route::get('/dashboard', [DashboardController::class, 'getDashboardData']); //done
   
     

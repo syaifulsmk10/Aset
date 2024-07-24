@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
         "email" => "admin@admin.com",
         "password" => bcrypt("admin_password"),
         "role_id" => 1, // Menggunakan role_id
+        "foto" => "admin.png"
     ]);
 
     // Siswa
@@ -47,6 +48,7 @@ class DatabaseSeeder extends Seeder
          "email" => "user@user.com",
         "password" => bcrypt("user_password"),
         "role_id" => 2, // Menggunakan role_id
+        "foto" => "user.png"
     ]);
 
     User::create([
@@ -55,6 +57,7 @@ class DatabaseSeeder extends Seeder
          "email" => "ipul@ipul.com",
         "password" => bcrypt("ipul12345"),
         "role_id" => 2, // Menggunakan role_id
+        "foto" => "admin.png"
     ]);
 
      Department::create([

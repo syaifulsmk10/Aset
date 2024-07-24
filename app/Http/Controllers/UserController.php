@@ -74,7 +74,9 @@ class UserController extends Controller
             "name" => $request->name,
             "email" => $request->email,
             "password" => Hash::make($request->password),
-            "role_id" => 1
+            "role_id" => 1,
+            "foto" => "admin.png",
+            "username" => $request->name
         ]);
 
         return response()->json([
@@ -177,6 +179,29 @@ class UserController extends Controller
             return response()->json([
                 "message" => "success update user"
             ]);
+        }
+    }
+
+    public function navbar(){
+        $user = user::where('id', Auth::user()->id)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => "User Not Found"
+            ]);
+        }
+
+        if ($user->role_id == 1 || $user->role_id == 2 ) {
+            return response()->json([
+                'message' => 'success',
+                'data' => [
+                    'foto' => $user->foto ? env('APP_URL') . 'uploads/profiles/' . $user->foto : null,
+                    'username' => $user->username,
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Failed read',
+            ], 400);
         }
     }
 }

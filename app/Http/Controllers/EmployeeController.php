@@ -97,7 +97,9 @@ class EmployeeController extends Controller
                 "name" => $request->name,
                 "email" => $request->email,
                 "password" => Hash::make($request->password),
-                "role_id" => 2
+                "role_id" => 2,
+                "foto" => "user.png",
+                "username" => $request->name
             ]);
 
             $employes = Employee::create([

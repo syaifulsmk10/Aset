@@ -15,7 +15,7 @@ class DataApplicantController extends Controller
     {
 
         if (Auth::user()->role->id == 1) {
-            $query = Applicant::with(['asset.category', 'user'])->whereNull('denied_at')->whereNull('delete_admin');
+            $query = Applicant::with(['asset.category', 'user'])->whereNull('delete_admin');
 
             if (!$query->exists()) {
                 return response()->json([
@@ -140,6 +140,7 @@ class DataApplicantController extends Controller
     }
 
 
+
     public function accept($id)
     {
         if (Auth::user()->role->id == 1) {
@@ -151,29 +152,43 @@ class DataApplicantController extends Controller
             }
 
             if ($Applicant && $Applicant->accepted_at === null && $Applicant->denied_at === null) {
-                $Applicant->update([
-                    "accepted_at" => Carbon::now(),
-                    'status' => 2,
-                ]);
-
-
-                $Asset = Asset::find($Applicant->asset_id);
+                $Asset = Asset::where('id', $Applicant->asset_id)->first(); // Asumsi ada kolom asset_id di Applicant
 
                 if ($Asset) {
-                    if ($Applicant->type == "Peminjaman") {
-                        $Asset->update([
-                            'status' => 3,
-                        ]);
-                    } elseif ($Applicant->type == "Pengembalian") {
-                        $Asset->update([
-                            'status' => 1,
-                        ]);
-                    }
-                }
+                    // Pengecekan status Asset
+                    if (($Applicant->type == "Peminjaman" && ($Asset->status == "Aktif" || $Asset->status == "Dalam_Proses_Peminjaman")) ||
+                        ($Applicant->type == "Pengembalian")
+                    ) {
 
-                return response()->json([
-                    "message" => "Accept Applicant Successful "
-                ]);
+                        $Applicant->update([
+                            "accepted_at" => Carbon::now(),
+                            'status' => 2,
+                        ]);
+
+                        // Update status Asset
+                        if ($Applicant->type == "Peminjaman") {
+                            $Asset->update([
+                                'status' => 3,
+                            ]);
+                        } elseif ($Applicant->type == "Pengembalian") {
+                            $Asset->update([
+                                'status' => 1,
+                            ]);
+                        }
+
+                        return response()->json([
+                            "message" => "Accept Applicant Successful"
+                        ]);
+                    } else {
+                        return response()->json([
+                            "message" => "Asset status not allowed for acceptance."
+                        ], 400);
+                    }
+                } else {
+                    return response()->json([
+                        "message" => "Asset not found."
+                    ], 404);
+                }
             } else {
                 return response()->json([
                     "message" => "Applicant cannot be accepted because they have been accepted or rejected previously."
@@ -181,8 +196,8 @@ class DataApplicantController extends Controller
             }
         } else {
             return response()->json([
-                "message" => "Your login not admin"
-            ]);
+                "message" => "Your login is not admin."
+            ], 403);
         }
     }
 
