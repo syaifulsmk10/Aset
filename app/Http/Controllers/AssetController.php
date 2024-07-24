@@ -154,7 +154,7 @@ class AssetController extends Controller
 
     public function update(Request $request, $id)
     {
-        
+
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
                 'asset_code' => 'sometimes|required|string|max:10',
@@ -167,6 +167,8 @@ class AssetController extends Controller
                 'status' => 'sometimes|required|string|in:Aktif,Tidak_Aktif,Dipinjamkan,Dalam_Pemeliharaan,Dalam_Penyimpanan,Dalam_Perbaikan,Dalam_Proses_Peminjaman,Tidak_Layak_Pakai', // Validasi nilai enum status sebagai string
                 'path' => 'sometimes|required|array|min:1',
                 'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'update_path' => 'sometimes|array|min:1', // Path yang ingin diupdate
+                'update_path.*' => 'string', // Validasi untuk path baru
             ]);
 
             if ($validator->fails()) {
@@ -215,37 +217,51 @@ class AssetController extends Controller
                 $images = $request->file('path');
                 $imagePaths = [];
 
-                $oldImages = ImageAsset::where('asset_id', $asset->id)->first();
-                if ($oldImages) {
-                    $oldImagePaths = json_decode($oldImages->path, true);
-                    foreach ($oldImagePaths as $oldImagePath) {
-                        $oldImageFullPath = public_path('uploads/assets/' . $oldImagePath);
-                        if (file_exists($oldImageFullPath)) {
-                            unlink($oldImageFullPath);
+                $imageAsset = ImageAsset::where('asset_id', $asset->id)->first();
+                $currentPaths = json_decode($imageAsset->path, true);
+
+
+                if ($request->has('update_path')) {
+                    foreach ($request->update_path as $index => $newPath) {
+                        if (isset($currentPaths[$index])) {
+                            $currentPaths[$index] = $newPath;
                         }
                     }
-                    $oldImages->delete();
                 }
 
-                foreach ($images as $image) {
-                    $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
-                    $image->move(public_path('uploads/assets'), $imageName);
-                    $imagePaths[] = $imageName;
+                if ($request->hasFile('path')) {
+                    $images = $request->file('path');
+
+                    foreach ($images as $image) {
+                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/assets'), $imageName);
+                        $currentPaths[] = $imageName;
+                    }
                 }
-                ImageAsset::updateOrCreate(
-                    ['asset_id' => $asset->id], // Kondisi pencarian
-                    ['path' => json_encode($imagePaths)] // Data yang akan diperbarui atau dibuat
-                );
+
+                $imageAsset->update([
+                    'path' => json_encode($currentPaths),
+                ]);
+
+                // Membuat respons dengan path dipisah
+                $response = [
+                    "message" => "Success Update Asset",
+                    "image_assets" => []
+                ];
+
+                foreach ($currentPaths as $path) {
+                    $response['image_assets'][] = [
+                        'asset_id' => $asset->id,
+                        'path' => $path,
+                    ];
+                }
+
+                return response()->json($response, 200);
+            } else {
+                return response()->json([
+                    "message" => "Your login not admin"
+                ], 403);
             }
-
-            return response()->json([
-                "message" => "Success Update Asset",
-                "data" => ""
-            ], 200);
-        } else {
-            return response()->json([
-                "message" => "Your login not admin"
-            ]);
         }
     }
 
