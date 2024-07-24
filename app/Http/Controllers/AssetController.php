@@ -295,7 +295,7 @@ class AssetController extends Controller
 
         // Buat respons dengan detail asset dan informasi gambar
         $response = [
-            'asset' => [
+     
                 'id' => $asset->id,
                 'asset_code' => $asset->asset_code,
                 'asset_name' => $asset->asset_name,
@@ -305,14 +305,14 @@ class AssetController extends Controller
                 'received_date' => $asset->received_date,
                 'expiration_date' => $asset->expiration_date,
                 'status' => $asset->status,
-            ],
+       
             'image_assets' => []
         ];
 
         foreach ($imagePaths as $path) {
             $response['image_assets'][] = [
                 'asset_id' => $asset->id,
-                'path' => asset('uploads/assets/' . $path),
+                'path' => asset( $path),
             ];
         }
 
