@@ -114,7 +114,7 @@ class AssetController extends Controller
  
 
             $Asset = Asset::create([
-                'asset_code' => strtoupper(substr($category->name, 0, 1)) . $request->asset_code,
+                'asset_code' => strtoupper(substr($category->name, 0, 1)) . - $request->asset_code,
                 'asset_name' => $request->asset_name,
                 'category_id' => $request->category_id,
                 'item_condition' => $request->item_condition,
@@ -232,15 +232,15 @@ class AssetController extends Controller
                     $image->move(public_path('uploads/assets'), $imageName);
                     $imagePaths[] = $imageName;
                 }
-
-                ImageAsset::create([
-                    'asset_id' => $asset->id,
-                    'path' => json_encode($imagePaths),
-                ]);
+                ImageAsset::updateOrCreate(
+                    ['asset_id' => $asset->id], // Kondisi pencarian
+                    ['path' => json_encode($imagePaths)] // Data yang akan diperbarui atau dibuat
+                );
             }
 
             return response()->json([
-                "message" => "Success Update Asset"
+                "message" => "Success Update Asset",
+                "data" => ""
             ], 200);
         } else {
             return response()->json([
@@ -312,7 +312,7 @@ class AssetController extends Controller
         foreach ($imagePaths as $path) {
             $response['image_assets'][] = [
                 'asset_id' => $asset->id,
-                'path' => asset( $path),
+                'path' => asset($path),
             ];
         }
 
