@@ -154,9 +154,9 @@ class AssetController extends Controller
 
     public function update(Request $request, $id)
     {
-
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
+                // Validasi lainnya...
                 'asset_code' => 'sometimes|required|string|max:10',
                 'asset_name' => 'sometimes|required|string|max:255',
                 'category_id' => 'sometimes|required|integer|exists:categories,id',
@@ -167,8 +167,6 @@ class AssetController extends Controller
                 'status' => 'sometimes|required|string|in:Aktif,Tidak_Aktif,Dipinjamkan,Dalam_Pemeliharaan,Dalam_Penyimpanan,Dalam_Perbaikan,Dalam_Proses_Peminjaman,Tidak_Layak_Pakai', // Validasi nilai enum status sebagai string
                 'path' => 'sometimes|required|array|min:1',
                 'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-                'update_path' => 'sometimes|array|min:1', // Path yang ingin diupdate
-                'update_path.*' => 'string', // Validasi untuk path baru
             ]);
 
             if ($validator->fails()) {
@@ -176,94 +174,61 @@ class AssetController extends Controller
             }
 
             $asset = Asset::find($id);
-            $category = Category::find($request->category_id);
-
             if (!$asset) {
-                return response()->json([
-                    "message" => "asset not found"
-                ]);
+                return response()->json(["message" => "Asset not found"], 404);
             }
 
-            if ($request->has('item_condition')) {
-                $asset->item_condition = ItemCondition::getValue($request->item_condition);
-            }
-
-            if ($request->has('status')) {
-                $asset->status = Status::getValue($request->status); // pastikan enum ini merubah string menjadi integer
-            }
-
-            if ($request->has('asset_code')) {
-                $asset->asset_code = strtoupper(substr($asset->asset_name, 0, 1)) . $request->asset_code;
-            }
-            if ($request->has('asset_name')) {
-                $asset->asset_name = $request->asset_name;
-            }
-            if ($request->has('category_id')) {
-                $asset->category_id = $request->category_id;
-            }
-            if ($request->has('price')) {
-                $asset->price = $request->price;
-            }
-            if ($request->has('received_date')) {
-                $asset->received_date = $request->received_date;
-            }
-            if ($request->has('expiration_date')) {
-                $asset->expiration_date = $request->expiration_date;
-            }
-
+            // Perbarui field lainnya...
             $asset->save();
 
             if ($request->hasFile('path')) {
                 $images = $request->file('path');
                 $imagePaths = [];
 
-                $imageAsset = ImageAsset::where('asset_id', $asset->id)->first();
-                $currentPaths = json_decode($imageAsset->path, true);
+                // Ambil jalur gambar lama dari database
+                $oldImages = ImageAsset::where('asset_id', $asset->id)->first();
+                if ($oldImages) {
+                    $oldImagePaths = json_decode($oldImages->path, true);
 
+                    // Ganti gambar yang lama dengan yang baru
+                    foreach ($images as $index => $image) {
+                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/assets'), $imageName);
+                        $imagePaths[] = $imageName;
 
-                if ($request->has('update_path')) {
-                    foreach ($request->update_path as $index => $newPath) {
-                        if (isset($currentPaths[$index])) {
-                            $currentPaths[$index] = $newPath;
+                        // Hapus gambar lama yang diganti
+                        if (isset($oldImagePaths[$index])) {
+                            $oldImageFullPath = public_path('uploads/assets/' . $oldImagePaths[$index]);
+                            if (file_exists($oldImageFullPath)) {
+                                unlink($oldImageFullPath); // Hapus file fisik
+                            }
                         }
                     }
-                }
 
-                if ($request->hasFile('path')) {
-                    $images = $request->file('path');
-
+                    // Gabungkan jalur gambar baru dan lama yang tidak diganti
+                    $imagePaths = array_merge($imagePaths, array_slice($oldImagePaths, count($imagePaths)));
+                    $oldImages->delete(); // Hapus entri database lama
+                } else {
+                    // Jika tidak ada gambar lama, hanya tambahkan gambar baru
                     foreach ($images as $image) {
                         $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
                         $image->move(public_path('uploads/assets'), $imageName);
-                        $currentPaths[] = $imageName;
+                        $imagePaths[] = $imageName;
                     }
                 }
 
-                $imageAsset->update([
-                    'path' => json_encode($currentPaths),
+                ImageAsset::create([
+                    'asset_id' => $asset->id,
+                    'path' => json_encode($imagePaths),
                 ]);
-
-                // Membuat respons dengan path dipisah
-                $response = [
-                    "message" => "Success Update Asset",
-                    "image_assets" => []
-                ];
-
-                foreach ($currentPaths as $path) {
-                    $response['image_assets'][] = [
-                        'asset_id' => $asset->id,
-                        'path' => $path,
-                    ];
-                }
-
-                return response()->json($response, 200);
-            } else {
-                return response()->json([
-                    "message" => "Your login not admin"
-                ], 403);
             }
+
+            return response()->json(["message" => "Success Update Asset"], 200);
+        } else {
+            return response()->json(["message" => "Your login not admin"], 403);
         }
     }
+
 
     public function delete($id)
     {
@@ -328,7 +293,7 @@ class AssetController extends Controller
         foreach ($imagePaths as $path) {
             $response['image_assets'][] = [
                 'asset_id' => $asset->id,
-                'path' => asset($path),
+                'path' => $path,
             ];
         }
 

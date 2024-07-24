@@ -84,7 +84,9 @@ class ApplicantController extends Controller
                     $query->where('user_id', $userId);
                 }) // Status "Dipinjamkan"
             ->get();
-        } 
+        } else {
+            return response()->json(['message' => 'Invalid transaction type'], 400);
+        }
 
         if ($assets->isEmpty()) {
             return response()->json([
