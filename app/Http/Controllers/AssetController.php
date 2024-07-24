@@ -178,7 +178,33 @@ class AssetController extends Controller
                 return response()->json(["message" => "Asset not found"], 404);
             }
 
-            // Perbarui field lainnya...
+            if ($request->has('item_condition')) {
+                $asset->item_condition = ItemCondition::getValue($request->item_condition);
+            }
+
+            if ($request->has('status')) {
+                $asset->status = Status::getValue($request->status); // pastikan enum ini merubah string menjadi integer
+            }
+
+            if ($request->has('asset_code')) {
+                $asset->asset_code = strtoupper(substr($asset->asset_name, 0, 1)) . $request->asset_code;
+            }
+            if ($request->has('asset_name')) {
+                $asset->asset_name = $request->asset_name;
+            }
+            if ($request->has('category_id')) {
+                $asset->category_id = $request->category_id;
+            }
+            if ($request->has('price')) {
+                $asset->price = $request->price;
+            }
+            if ($request->has('received_date')) {
+                $asset->received_date = $request->received_date;
+            }
+            if ($request->has('expiration_date')) {
+                $asset->expiration_date = $request->expiration_date;
+            }
+
             $asset->save();
 
             if ($request->hasFile('path')) {
