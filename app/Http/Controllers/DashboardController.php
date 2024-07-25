@@ -20,7 +20,7 @@ class DashboardController extends Controller
             $totalDamagedAssets = Asset::where('item_condition', 3)->count();
             $totalLoanedAssets = Asset::where('status', 3)->count();
             $nearestReturns = Applicant::where('expiry_date', '>=', Carbon::now())
-                ->where('type', 1)
+                ->where('type', 2)
                 ->where('status', 1)
                 ->orderBy('expiry_date', 'asc')
                 ->get();
