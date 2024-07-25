@@ -387,38 +387,41 @@ class ApplicantController extends Controller
 
                 $Applicant->save();
 
-                if ($request->hasFile('path')) {
-                    $images = $request->file('path');
-                    $imagePaths = [];
+                // Retrieve current images for the applicant
+                $currentImages = Image::where('applicant_id', $Applicant->id)->first()?->path ?? [];
+                $imagePaths = json_decode($currentImages, true) ?: [];
 
+                // Handle deletion of specified images
+                if ($request->has('delete_images')) {
+                    $deleteImages = $request->delete_images;
+                    foreach ($deleteImages as $itemToDelete) {
+                        if (in_array($itemToDelete, $imagePaths)) {
+                            $imagePaths = array_diff($imagePaths, [$itemToDelete]);
 
-                    $oldImages = Image::where('applicant_id', $Applicant->id)->first();
-                    if ($oldImages) {
-                        $oldImagePaths = json_decode($oldImages->path, true);
-                        foreach ($oldImagePaths as $oldImagePath) {
-                            $oldImageFullPath = public_path('uploads/applicant/' . $oldImagePath);
-                            if (file_exists($oldImageFullPath)) {
-                                unlink($oldImageFullPath);
+                            try {
+                                unlink(public_path('uploads/applicant/' . $itemToDelete));
+                            } catch (\Exception $e) {
+                                // Handle the exception if needed
                             }
                         }
-                        $oldImages->delete();
                     }
-
-                    foreach ($images as $image) {
-                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
-                        $image->move(public_path('uploads/applicant'), $imageName);
-                        $imagePaths[] = $imageName;
-                    }
-
-                    Image::create([
-                        'applicant_id' => $Applicant->id,
-                        'path' => json_encode($imagePaths),
-                    ]);
-
-                    return response()->json([
-                        "message" => "Success Update Asset"
-                    ], 200);
                 }
+
+                // Handle upload of new images
+                if ($request->hasFile('path')) {
+                    $images = $request->file('path');
+                    foreach ($images as $image) {
+                        $filename = 'VA' . Str::random(40) . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/applicant'), $filename);
+                        $imagePaths[] = $filename;
+                    }
+                }
+
+                // Update or create the Image record for the applicant
+                Image::updateOrCreate(
+                    ['applicant_id' => $Applicant->id],
+                    ['path' => json_encode($imagePaths)]
+                );
 
 
                 return response()->json([
@@ -447,11 +450,13 @@ class ApplicantController extends Controller
                     if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
                         return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
                     };
+
+                    if (!$newAsset) {
+                        return response()->json(['message' => 'item_Condition'], 400);
+                    };
                 }
 
-                if (!$newAsset) {
-                    return response()->json(['message' => 'item_Condition'], 400);
-                };
+                
 
 
                 if ($request->has('submission_date')) {
@@ -464,44 +469,50 @@ class ApplicantController extends Controller
 
                 $Applicant->save();
 
-                if ($request->hasFile('path')) {
-                    $images = $request->file('path');
-                    $imagePaths = [];
+                $currentImages = Image::where('applicant_id', $Applicant->id)->first()?->path ?? [];
+                $imagePaths = json_decode($currentImages, true) ?: [];
 
+                // Handle deletion of specified images
+                if ($request->has('delete_images')) {
+                    $deleteImages = $request->delete_images;
+                    foreach ($deleteImages as $itemToDelete) {
+                        if (in_array($itemToDelete, $imagePaths)) {
+                            $imagePaths = array_diff($imagePaths, [$itemToDelete]);
 
-                    $oldImages = Image::where('applicant_id', $Applicant->id)->first();
-                    if ($oldImages) {
-                        $oldImagePaths = json_decode($oldImages->path, true);
-                        foreach ($oldImagePaths as $oldImagePath) {
-                            $oldImageFullPath = public_path('uploads/applicant/' . $oldImagePath);
-                            if (file_exists($oldImageFullPath)) {
-                                unlink($oldImageFullPath);
+                            try {
+                                unlink(public_path('uploads/applicant/' . $itemToDelete));
+                            } catch (\Exception $e) {
+                                // Handle the exception if needed
                             }
                         }
-                        $oldImages->delete();
                     }
-
-                    foreach ($images as $image) {
-                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
-                        $image->move(public_path('uploads/applicant'), $imageName);
-                        $imagePaths[] = $imageName;
-                    }
-
-                    Image::create([
-                        'applicant_id' => $Applicant->id,
-                        'path' => json_encode($imagePaths),
-                    ]);
-
-                    return response()->json([
-                        "message" => "Success Update Asset"
-                    ], 200);
                 }
-            } else {
+
+                // Handle upload of new images
+                if ($request->hasFile('path')) {
+                    $images = $request->file('path');
+                    foreach ($images as $image) {
+                        $filename = 'VA' . Str::random(40) . $image->getClientOriginalName();
+                        $image->move(public_path('uploads/applicant'), $filename);
+                        $imagePaths[] = $filename;
+                    }
+                }
+
+                // Update or create the Image record for the applicant
+                Image::updateOrCreate(
+                    ['applicant_id' => $Applicant->id],
+                    ['path' => json_encode($imagePaths)]
+                );
+
+                return response()->json([
+                    "message" => "Applicant updated successfully"
+                ]);
+            }else {
                 return response()->json([
                     "message" => "Cant Update"
                 ]);
             }
-        } else {
+        }else {
             return response()->json([
                 "message" => "Your login not User"
             ]);
@@ -511,24 +522,39 @@ class ApplicantController extends Controller
     public function detil($id)
     {
         if (Auth::user()->role->id == 2) {
-            $Applicant = Applicant::with(['asset', 'user', 'images'])->where('id', $id)->where('user_id', Auth::user()->id)->first();
+            $applicant = Applicant::with(['asset', 'user', 'images'])
+            ->where('id', $id)
+                ->where('user_id', Auth::user()->id)
+                ->first();
 
-            if (!$Applicant || $Applicant->status !== "Belum_Disetujui") {
+            if (!$applicant || $applicant->status !== "Belum_Disetujui") {
                 return response()->json([
                     'message' => 'Applicant not found.'
                 ], 404);
             }
 
-            $Applicant->images->each(function ($image) {
-                $image->path = json_decode($image->path, true);
-            });
+            // Initialize the response array with applicant data
+            $response = $applicant->toArray();
 
+            // Initialize the image_assets array
+            $response['image_assets'] = [];
 
-            return response()->json($Applicant);
+            // Loop through each image and add to image_assets array
+            foreach ($applicant->images as $image) {
+                $paths = json_decode($image->path, true);
+                foreach ($paths as $path) {
+                    $response['image_assets'][] = [
+                        'asset_id' => $applicant->asset->id,
+                        'path' => $path,
+                    ];
+                }
+            }
+
+            return response()->json($response, 200);
         } else {
             return response()->json([
                 "message" => "Your login not User"
-            ]);
+            ], 403);
         }
     }
 
