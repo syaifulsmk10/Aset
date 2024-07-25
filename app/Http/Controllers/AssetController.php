@@ -207,28 +207,24 @@ class AssetController extends Controller
 
             $asset->save();
 
-            // Menangani upload dan penghapusan gambar
             $currentImages = ImageAsset::where('asset_id', $asset->id)->first()?->path ?? [];
             $imagePaths = json_decode($currentImages, true) ?: [];
 
-            // Menghapus gambar
             if ($request->has('delete_images')) {
                 $deleteImages = $request->delete_images;
                 foreach ($deleteImages as $itemToDelete) {
                     if (in_array($itemToDelete, $imagePaths)) {
                         $imagePaths = array_diff($imagePaths, [$itemToDelete]);
 
-                        // Mencoba menghapus file gambar dari storage
                         try {
                             unlink(public_path('uploads/' . $itemToDelete));
                         } catch (\Exception $e) {
-                            // Menangani pengecualian (opsional)
                         }
                     }
                 }
             }
 
-            // Menambahkan gambar baru
+
             if ($request->hasFile('path')) {
                 $images = $request->file('path');
                 foreach ($images as $image) {
@@ -239,7 +235,6 @@ class AssetController extends Controller
                 }
             }
 
-            // Memperbarui path gambar di database
             ImageAsset::updateOrCreate(
                 ['asset_id' => $asset->id],
                 ['path' => json_encode($imagePaths)]
@@ -280,14 +275,13 @@ class AssetController extends Controller
 
     public function detail($id)
     {
-        // Temukan asset berdasarkan ID
+
         $asset = Asset::find($id);
 
         if (!$asset) {
             return response()->json(['error' => 'Asset not found'], 404);
         }
 
-        // Ambil informasi gambar terkait dengan asset
         $imageAsset = ImageAsset::where('asset_id', $asset->id)->first();
 
         $imagePaths = [];
@@ -295,7 +289,6 @@ class AssetController extends Controller
             $imagePaths = json_decode($imageAsset->path, true);
         }
 
-        // Buat respons dengan detail asset dan informasi gambar
         $response = [
 
             'id' => $asset->id,
@@ -335,10 +328,10 @@ class AssetController extends Controller
         return response()->json(['message' => 'Aset yang dipilih berhasil dihapus.']);
     }
 
-    private function removeItemInArray(array $arr, string $value): array
-    {
-        return array_filter($arr, function ($item) use ($value) {
-            return $item !== $value;
-        });
-    }
+    // private function removeItemInArray(array $arr, string $value): array
+    // {
+    //     return array_filter($arr, function ($item) use ($value) {
+    //         return $item !== $value;
+    //     });
+    // }
 }

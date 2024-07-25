@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;    
+use Illuminate\Support\Str;
 
 class ApplicantController extends Controller
 {
@@ -60,7 +60,6 @@ class ApplicantController extends Controller
                 "data" => $applicants,
                 "total_page" => $totalpage
             ]);
-
         } else {
             return response()->json([
                 "message" => "Your login not User"
@@ -72,18 +71,18 @@ class ApplicantController extends Controller
     public function getaset(Request $request)
     {
         $transactionType = $request->query('type');
-        $userId = Auth::id(); 
+        $userId = Auth::id();
 
         if ($transactionType === '1') {
-            $assets = Asset::whereIn('status', [1,7]) // Status "Aktif"
-            ->where('item_condition', 1)
-            ->get();
+            $assets = Asset::whereIn('status', [1, 7]) // Status "Aktif"
+                ->where('item_condition', 1)
+                ->get();
         } elseif ($transactionType === '2') {
-            $assets = Asset::whereIn('status', [3,8])
+            $assets = Asset::whereIn('status', [3, 9])
                 ->whereHas('applicants', function ($query) use ($userId) {
                     $query->where('user_id', $userId);
                 }) // Status "Dipinjamkan"
-            ->get();
+                ->get();
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
@@ -111,11 +110,11 @@ class ApplicantController extends Controller
     public function create(Request $request)
     {
         if (Auth::user()->role->id == 2) {
-           
+
 
             $asset = Asset::find($request->asset_id);
             if ($asset) {
-                if ($asset->status == 'Aktif' || $asset->status == 'Dalam_Proses_Peminjaman' && $request->type == 1 && $asset->item_condition == "Baik") {
+                if (($asset->status == 'Aktif' || $asset->status == 'Dalam_Proses_Peminjaman') && $request->type == 1 && $asset->item_condition == "Baik") {
                     $validator = Validator::make($request->all(), [
                         'asset_id' => 'required|exists:assets,id',
                         'submission_date' => 'sometimes|required|date|after_or_equal:today',
@@ -167,18 +166,18 @@ class ApplicantController extends Controller
                     }
                 } elseif ($asset->status == 'Dipinjamkan' && $request->type == 2) {
 
-                     $validator = Validator::make($request->all(), [
-                'asset_id' => 'required|exists:assets,id',
-                'type' => 'required|in:1,2',
-                'submission_date' => 'sometimes|required|date|after_or_equal:today',
-                'expiry_date' => 'nullable|date|after:submission_date',
-                'path' => 'required|array|min:1',
-                'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+                    $validator = Validator::make($request->all(), [
+                        'asset_id' => 'required|exists:assets,id',
+                        'type' => 'required|in:1,2',
+                        'submission_date' => 'sometimes|required|date|after_or_equal:today',
+                        'expiry_date' => 'nullable|date|after:submission_date',
+                        'path' => 'required|array|min:1',
+                        'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
+                    ]);
 
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 400);
-            }
+                    if ($validator->fails()) {
+                        return response()->json(['error' => $validator->errors()], 400);
+                    }
                     $applicant = Applicant::create([
                         'user_id' => Auth::user()->id,
                         'asset_id' => $request->asset_id,
@@ -327,20 +326,9 @@ class ApplicantController extends Controller
 
         if (Auth::user()->role->id == 2) {
             $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
-            $initialSubmissionDate = $Applicant->submission_date;
             $validator = Validator::make($request->all(), [
                 'asset_id' => 'sometimes|required|exists:assets,id',
-                'submission_date' =>
-                [
-                    'sometimes',
-                    'required',
-                    'date',
-                    function ($attribute, $value, $fail) use ($initialSubmissionDate) {
-                        if (strtotime($value) < strtotime($initialSubmissionDate)) {
-                            $fail('The submission date cannot be earlier than the initial submission date.');
-                        }
-                    },
-                ],
+                'submission_date' => 'sometimes|required|date|after_or_equal:today',
                 'expiry_date' => 'sometimes|required|date|after:submission_date',
                 'type' => 'sometimes|required|in:Peminjaman,Pengembalian',
                 'path.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -350,7 +338,7 @@ class ApplicantController extends Controller
                 return response()->json(['error' => $validator->errors()], 400);
             }
 
-           
+
             if (!$Applicant) {
                 return response()->json([
                     'message' => 'Applicant not found.'
@@ -369,7 +357,7 @@ class ApplicantController extends Controller
                 }
 
                 if ($request->has('asset_id')) {
-                    $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1,7])->first();
+                    $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1, 7])->first();
                     if (!$newAsset) {
                         return response()->json(['message' => 'item_Condition'], 400);
                     };
@@ -443,7 +431,7 @@ class ApplicantController extends Controller
             }
 
 
-            
+
 
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
 
@@ -454,7 +442,7 @@ class ApplicantController extends Controller
 
                 if ($request->has('asset_id')) {
                     $newAsset = Asset::find($request->asset_id);
-                    
+
 
                     if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
                         return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
@@ -546,7 +534,7 @@ class ApplicantController extends Controller
 
 
 
-        public function destroy(Request $request)
+    public function destroy(Request $request)
     {
         if (Auth::user()->role->id != 2) {
             return response()->json([
@@ -600,5 +588,22 @@ class ApplicantController extends Controller
         return response()->json([
             "message" => "Selected applicants successfully updated"
         ]);
+    }
+
+    public function getExpiredApplicants()
+    {
+
+        $expiredApplicants = Applicant::where('type', '1')
+            ->where('status', '2')
+            ->where('expiry_date', '>=', Carbon::now())
+            ->orderBy('expiry_date', 'desc')
+            ->get()
+            ->groupBy('asset_id')
+            ->map(function ($group) {
+                return $group->first();
+            })
+            ->values();
+
+        return response()->json($expiredApplicants);
     }
 }

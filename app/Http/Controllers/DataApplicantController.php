@@ -176,6 +176,19 @@ class DataApplicantController extends Controller
                             ]);
                         }
 
+                        if
+                        ($Applicant_check = Applicant::where('asset_id', $Applicant->asset_id)
+                        ->where('id', '!=', $id)
+                        ->whereNull('denied_at')
+                        ->whereNull('accepted_at')
+                        ){
+            
+                            $Applicant_check->update([
+                                'denied_at' => Carbon::now(),
+                                'status' => 3, 
+                            ]);
+                        }
+
                         return response()->json([
                             "message" => "Accept Applicant Successful"
                         ]);
@@ -200,9 +213,6 @@ class DataApplicantController extends Controller
             ], 403);
         }
     }
-
-
-
 
     public function denied($id)
     {

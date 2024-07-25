@@ -34,6 +34,7 @@ Route::post('/register', [UserController::class, 'registerUser']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/expired-applicants', [ApplicantController::class, 'getExpiredApplicants']);
     Route::get('/detail', [UserController::class, 'getUser']);  //done
     Route::post('/update', [UserController::class, 'update']); //done
     Route::get('/navbar', [UserController::class, 'navbar']); //done
