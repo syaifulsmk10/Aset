@@ -304,6 +304,7 @@ class ApplicantController extends Controller
                 "Category" => $Applicant->asset->category->name,
                 "SubmissionDate" => $Applicant->submission_date,
                 "ExpiryDate" => $Applicant->expiry_date,
+                "UserId" => $Applicant->user->id,
                 "UserApplicants" => $Applicant->user->name,
                 "type" => $Applicant->type,
                 "Images" => $Applicant->images->map(function ($image) {
