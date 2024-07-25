@@ -36,13 +36,5 @@ class Asset extends Model
     public function getStatusAttribute($value)
     {
         return Status::fromValue((int) $value)->key;
-    }
-
-    public function getImageAttribute($value)
-        {
-            $encoded_value = urlencode($value);
-    return env('APP_URL') . $encoded_value;
-        }
-
-        
+    }   
 }

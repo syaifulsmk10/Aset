@@ -72,22 +72,23 @@ class AssetController extends Controller
                         $data = json_decode($imageAsset->path, true);
 
                         return array_values(
-                            array_map(fn($path) => env('APP_URL') . 'uploads/assets/' . $path, $data)
+                            array_map(fn ($path) => env('APP_URL') . 'uploads/assets/' . $path, $data)
                         );
                     })->flatten(1)->all()
                 ];
             });
 
             return response()->json([
-                "data" =>$assets,
+                "data" => $assets,
                 "total_page" => $totalpage
             ]);
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your login not admin"
             ]);
         }
     }
+
 
     public function create(Request $request)
     {
@@ -111,10 +112,10 @@ class AssetController extends Controller
             }
 
             $category = Category::find($request->category_id);
- 
+
 
             $Asset = Asset::create([
-                'asset_code' => strtoupper(substr($category->name, 0, 1)) . - $request->asset_code,
+                'asset_code' => strtoupper(substr($category->name, 0, 1)) . $request->asset_code,
                 'asset_name' => $request->asset_name,
                 'category_id' => $request->category_id,
                 'item_condition' => $request->item_condition,
@@ -144,11 +145,10 @@ class AssetController extends Controller
             } else {
                 return response()->json(['error' => 'No file found'], 400);
             }
-
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your login not admin"
-            ]); 
+            ]);
         }
     }
 
@@ -207,54 +207,49 @@ class AssetController extends Controller
 
             $asset->save();
 
-            if ($request->hasFile('path')) {
-                $images = $request->file('path');
-                $imagePaths = [];
+            // Menangani upload dan penghapusan gambar
+            $currentImages = ImageAsset::where('asset_id', $asset->id)->first()?->path ?? [];
+            $imagePaths = json_decode($currentImages, true) ?: [];
 
-                // Ambil jalur gambar lama dari database
-                $oldImages = ImageAsset::where('asset_id', $asset->id)->first();
-                if ($oldImages) {
-                    $oldImagePaths = json_decode($oldImages->path, true);
+            // Menghapus gambar
+            if ($request->has('delete_images')) {
+                $deleteImages = $request->delete_images;
+                foreach ($deleteImages as $itemToDelete) {
+                    if (in_array($itemToDelete, $imagePaths)) {
+                        $imagePaths = array_diff($imagePaths, [$itemToDelete]);
 
-                    // Ganti gambar yang lama dengan yang baru
-                    foreach ($images as $index => $image) {
-                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
-                        $image->move(public_path('uploads/assets'), $imageName);
-                        $imagePaths[] = $imageName;
-
-                        // Hapus gambar lama yang diganti
-                        if (isset($oldImagePaths[$index])) {
-                            $oldImageFullPath = public_path('uploads/assets/' . $oldImagePaths[$index]);
-                            if (file_exists($oldImageFullPath)) {
-                                unlink($oldImageFullPath); // Hapus file fisik
-                            }
+                        // Mencoba menghapus file gambar dari storage
+                        try {
+                            unlink(public_path('uploads/' . $itemToDelete));
+                        } catch (\Exception $e) {
+                            // Menangani pengecualian (opsional)
                         }
                     }
-
-                    // Gabungkan jalur gambar baru dan lama yang tidak diganti
-                    $imagePaths = array_merge($imagePaths, array_slice($oldImagePaths, count($imagePaths)));
-                    $oldImages->delete(); // Hapus entri database lama
-                } else {
-                    // Jika tidak ada gambar lama, hanya tambahkan gambar baru
-                    foreach ($images as $image) {
-                        $imageName = 'VA' . Str::random(40) . $image->getClientOriginalName();
-                        $image->move(public_path('uploads/assets'), $imageName);
-                        $imagePaths[] = $imageName;
-                    }
                 }
-
-                ImageAsset::create([
-                    'asset_id' => $asset->id,
-                    'path' => json_encode($imagePaths),
-                ]);
             }
 
-            return response()->json(["message" => "Success Update Asset"], 200);
+            // Menambahkan gambar baru
+            if ($request->hasFile('path')) {
+                $images = $request->file('path');
+                foreach ($images as $image) {
+                    $filename =
+                    'VA' . Str::random(40) . $image->getClientOriginalName();
+                    $image->move(public_path('uploads'), $filename);
+                    $imagePaths[] = $filename;
+                }
+            }
+
+            // Memperbarui path gambar di database
+            ImageAsset::updateOrCreate(
+                ['asset_id' => $asset->id],
+                ['path' => json_encode($imagePaths)]
+            );
+
+            return response()->json(["message" => "Berhasil memperbarui asset"], 200);
         } else {
-            return response()->json(["message" => "Your login not admin"], 403);
+            return response()->json(["message" => "Anda bukan admin"], 403);
         }
     }
-
 
     public function delete($id)
     {
@@ -276,10 +271,10 @@ class AssetController extends Controller
             return response()->json([
                 'message' => 'Success delete Asset'
             ]);
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your login not admin"
-            ]); 
+            ]);
         }
     }
 
@@ -302,17 +297,17 @@ class AssetController extends Controller
 
         // Buat respons dengan detail asset dan informasi gambar
         $response = [
-     
-                'id' => $asset->id,
-                'asset_code' => $asset->asset_code,
-                'asset_name' => $asset->asset_name,
-                'category_id' => $asset->category_id,
-                'item_condition' => $asset->item_condition,
-                'price' => $asset->price,
-                'received_date' => $asset->received_date,
-                'expiration_date' => $asset->expiration_date,
-                'status' => $asset->status,
-       
+
+            'id' => $asset->id,
+            'asset_code' => $asset->asset_code,
+            'asset_name' => $asset->asset_name,
+            'category_id' => $asset->category_id,
+            'item_condition' => $asset->item_condition,
+            'price' => $asset->price,
+            'received_date' => $asset->received_date,
+            'expiration_date' => $asset->expiration_date,
+            'status' => $asset->status,
+
             'image_assets' => []
         ];
 
@@ -334,9 +329,16 @@ class AssetController extends Controller
             'ids.*' => 'exists:assets,id',
         ]);
 
-      
+
         Asset::whereIn('id', $request->ids)->delete();
 
         return response()->json(['message' => 'Aset yang dipilih berhasil dihapus.']);
+    }
+
+    private function removeItemInArray(array $arr, string $value): array
+    {
+        return array_filter($arr, function ($item) use ($value) {
+            return $item !== $value;
+        });
     }
 }

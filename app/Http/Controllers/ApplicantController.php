@@ -98,6 +98,7 @@ class ApplicantController extends Controller
         foreach ($assets as $asset) {
             $dataasset[] = [
                 "id" => $asset->id,
+                "status" => $asset->status,
                 "asset_name" => $asset->asset_name
             ];
         }

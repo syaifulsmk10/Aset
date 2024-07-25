@@ -10,13 +10,14 @@ class ImageAsset extends Model
     use HasFactory;
 
     protected $fillable = ['asset_id', 'path'];
-    
-     public function asset()
+
+    public function asset()
     {
         return $this->belongsTo(Asset::class);
     }
 
-    public function getPathAttribute($value) {
+    public function getPathAttribute($value)
+    {
         return $value;
     }
 }
