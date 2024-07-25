@@ -297,7 +297,10 @@ class ApplicantController extends Controller
 
             $dataApplicant = [
                 "id" => $Applicant->id,
+                "idsset" => $Applicant->asset->id,
                 "NameAsset" => $Applicant->asset->asset_name,
+                "id_Category" =>
+                $Applicant->asset->category->id,
                 "Category" => $Applicant->asset->category->name,
                 "SubmissionDate" => $Applicant->submission_date,
                 "ExpiryDate" => $Applicant->expiry_date,
