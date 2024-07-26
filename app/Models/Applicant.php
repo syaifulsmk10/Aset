@@ -44,7 +44,7 @@ class Applicant extends Model
     {
         return [
             'id' => $value,
-            'value' => Type::fromValue((int) $this->type)->key
+            'value' => Type::fromValue((int) $this->value)->key
         ];
     }
 
