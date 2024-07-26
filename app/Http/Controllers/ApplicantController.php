@@ -530,7 +530,7 @@ class ApplicantController extends Controller
     {
         if (Auth::user()->role->id == 2) {
             $applicant = Applicant::with(['asset', 'user', 'images'])
-            ->where('id', $id)
+                ->where('id', $id)
                 ->where('user_id', Auth::user()->id)
                 ->first();
 
@@ -541,6 +541,8 @@ class ApplicantController extends Controller
             }
 
             $response = $applicant->toArray();
+            $response['type'] = (int) $applicant->getAttributes()['type'];
+            $response['status'] = (int) $applicant->getAttributes()['status'];
             $response['image_assets'] = [];
 
             foreach ($applicant->images as $image) {
