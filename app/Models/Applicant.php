@@ -13,7 +13,7 @@ class Applicant extends Model
     use HasFactory;
     
     protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type', 'status', 'delete_admin', 'delete_user'];
-    protected $appends = ['type_value']''
+    protected $appends = ['type_value'];
 
     public function user()
     {
