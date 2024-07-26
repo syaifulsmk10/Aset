@@ -316,7 +316,7 @@ class ApplicantController extends Controller
                 "ExpiryDate" => $Applicant->expiry_date,
                 "UserId" => $Applicant->user->id,
                 "UserApplicants" => $Applicant->user->name,
-                "type" => $Applicant->type,
+                "type" => (int) $Applicant->getAttributes()['type'],
                 "Images" => $Applicant->images->map(function ($image) {
                     $data = json_decode($image->path, true);
 
@@ -401,11 +401,10 @@ class ApplicantController extends Controller
 
                 $Applicant->save();
 
-                // Retrieve current images for the applicant
                 $currentImages = Image::where('applicant_id', $Applicant->id)->first()?->path ?? [];
                 $imagePaths = json_decode($currentImages, true) ?: [];
 
-                // Handle deletion of specified images
+
                 if ($request->has('delete_images')) {
                     $deleteImages = $request->delete_images;
                     foreach ($deleteImages as $itemToDelete) {
@@ -415,13 +414,11 @@ class ApplicantController extends Controller
                             try {
                                 unlink(public_path('uploads/applicant/' . $itemToDelete));
                             } catch (\Exception $e) {
-                                // Handle the exception if needed
                             }
                         }
                     }
                 }
 
-                // Handle upload of new images
                 if ($request->hasFile('path')) {
                     $images = $request->file('path');
                     foreach ($images as $image) {
@@ -431,7 +428,6 @@ class ApplicantController extends Controller
                     }
                 }
 
-                // Update or create the Image record for the applicant
                 Image::updateOrCreate(
                     ['applicant_id' => $Applicant->id],
                     ['path' => json_encode($imagePaths)]
@@ -486,7 +482,6 @@ class ApplicantController extends Controller
                 $currentImages = Image::where('applicant_id', $Applicant->id)->first()?->path ?? [];
                 $imagePaths = json_decode($currentImages, true) ?: [];
 
-                // Handle deletion of specified images
                 if ($request->has('delete_images')) {
                     $deleteImages = $request->delete_images;
                     foreach ($deleteImages as $itemToDelete) {
@@ -496,13 +491,12 @@ class ApplicantController extends Controller
                             try {
                                 unlink(public_path('uploads/applicant/' . $itemToDelete));
                             } catch (\Exception $e) {
-                                // Handle the exception if needed
+
                             }
                         }
                     }
                 }
 
-                // Handle upload of new images
                 if ($request->hasFile('path')) {
                     $images = $request->file('path');
                     foreach ($images as $image) {
@@ -512,7 +506,6 @@ class ApplicantController extends Controller
                     }
                 }
 
-                // Update or create the Image record for the applicant
                 Image::updateOrCreate(
                     ['applicant_id' => $Applicant->id],
                     ['path' => json_encode($imagePaths)]
@@ -547,13 +540,9 @@ class ApplicantController extends Controller
                 ], 404);
             }
 
-            // Initialize the response array with applicant data
             $response = $applicant->toArray();
-
-            // Initialize the image_assets array
             $response['image_assets'] = [];
 
-            // Loop through each image and add to image_assets array
             foreach ($applicant->images as $image) {
                 $paths = json_decode($image->path, true);
                 foreach ($paths as $path) {
