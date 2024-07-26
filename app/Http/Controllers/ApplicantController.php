@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantController extends Controller
 {
@@ -539,6 +540,8 @@ class ApplicantController extends Controller
                     'message' => 'Applicant not found.'
                 ], 404);
             }
+
+            \Log::info('Type from database: ' . $applicant->type);
            
             $response = $applicant->toArray();
             $response['image_assets'] = [];
