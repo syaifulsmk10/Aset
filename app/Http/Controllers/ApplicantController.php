@@ -316,7 +316,7 @@ class ApplicantController extends Controller
                 "ExpiryDate" => $Applicant->expiry_date,
                 "UserId" => $Applicant->user->id,
                 "UserApplicants" => $Applicant->user->name,
-                "type" => $Applicant->type,
+                "type" => $Applicant->type
                 "Images" => $Applicant->images->map(function ($image) {
                     $data = json_decode($image->path, true);
 
@@ -539,9 +539,9 @@ class ApplicantController extends Controller
                     'message' => 'Applicant not found.'
                 ], 404);
             }
-
+           
             $response = $applicant->toArray();
-            $response['type'] = self::getTypeInteger($applicant->type); 
+            $response['type'] = (int) getAttributes($applicant->type);
             $response['image_assets'] = [];
 
             foreach ($applicant->images as $image) {
