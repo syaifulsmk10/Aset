@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 
 class ApplicantController extends Controller
 {
@@ -317,7 +316,7 @@ class ApplicantController extends Controller
                 "ExpiryDate" => $Applicant->expiry_date,
                 "UserId" => $Applicant->user->id,
                 "UserApplicants" => $Applicant->user->name,
-                "type" => $Applicant->type,
+                "type" => $Applicant->type
                 "Images" => $Applicant->images->map(function ($image) {
                     $data = json_decode($image->path, true);
 
@@ -541,10 +540,8 @@ class ApplicantController extends Controller
                 ], 404);
             }
 
-           
             $response = $applicant->toArray();
             $response['image_assets'] = [];
-            $response['type'] =  (int) $applicant->getAttributes()['type'],
 
             foreach ($applicant->images as $image) {
                 $paths = json_decode($image->path, true);
