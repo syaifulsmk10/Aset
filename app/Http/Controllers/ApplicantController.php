@@ -545,7 +545,7 @@ class ApplicantController extends Controller
            
             $response = $applicant->toArray();
             $response['image_assets'] = [];
-            $response['type'] = (int) $applicant->type;
+            $response['type'] =  $applicant->type;
 
             foreach ($applicant->images as $image) {
                 $paths = json_decode($image->path, true);
