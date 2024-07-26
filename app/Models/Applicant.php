@@ -13,7 +13,6 @@ class Applicant extends Model
     use HasFactory;
     
     protected $fillable = ['user_id', 'asset_id', 'submission_date', 'expiry_date', 'accepted_at', 'denied_at', 'type', 'status', 'delete_admin', 'delete_user'];
-    protected $appends = ['type_value'];
 
     public function user()
     {
@@ -41,9 +40,12 @@ class Applicant extends Model
         return StatusApplicant::fromValue((int) $value)->key;
     }
 
-    public function getTypeValueAttribute()
+    public function getTypeAttribute($value)
     {
-        return Type::fromValue((int) $this->type)->key;
+        return [
+            'id' => $value,
+            'value' => Type::fromValue((int) $this->type)->key
+        ]
     }
 
     // Tambahkan accessor untuk status
