@@ -80,7 +80,9 @@ class ApplicantController extends Controller
         } elseif ($transactionType === '2') {
             $assets = Asset::whereIn('status', [3, 9])
                 ->whereHas('applicants', function ($query) use ($userId) {
-                    $query->where('user_id', $userId);
+                $query->where('user_id', $userId)
+                    ->whereNotNull('accepted_at')
+                    ->where('type', 1);
                 }) // Status "Dipinjamkan"
                 ->get();
         } else {
@@ -165,6 +167,14 @@ class ApplicantController extends Controller
                         ], 200);
                     }
                 } elseif ($asset->status == 'Dipinjamkan' && $request->type == 2) {
+
+                    $applicant = Applicant::where('asset_id', $request->asset_id)->where('type', 1)->whereNotNull('accepted_at')->first();
+
+                    if ($applicant->user_id != Auth::user()->id) {
+                        return response()->json([
+                            'message' => 'Anda bukan peminjam dari aset ini.'
+                        ], 403);
+                    }
 
                     $validator = Validator::make($request->all(), [
                         'asset_id' => 'required|exists:assets,id',
