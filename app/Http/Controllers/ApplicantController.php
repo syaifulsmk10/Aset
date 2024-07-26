@@ -541,11 +541,10 @@ class ApplicantController extends Controller
                 ], 404);
             }
 
-            \Log::info('Type from database: ' . $applicant->type);
            
             $response = $applicant->toArray();
             $response['image_assets'] = [];
-            $response['type'] =  $applicant->type;
+            $response['type'] =  (int) $applicant->getAttributes()['type'],
 
             foreach ($applicant->images as $image) {
                 $paths = json_decode($image->path, true);
