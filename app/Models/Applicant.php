@@ -45,7 +45,7 @@ class Applicant extends Model
         return [
             'id' => $value,
             'value' => Type::fromValue((int) $this->type)->key
-        ]
+        ];
     }
 
     // Tambahkan accessor untuk status
