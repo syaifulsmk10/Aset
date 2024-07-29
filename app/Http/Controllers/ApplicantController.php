@@ -168,7 +168,7 @@ class ApplicantController extends Controller
                     }
                 } elseif ($asset->status == 'Dipinjamkan' && $request->type == 2) {
 
-                    $applicant = Applicant::where('asset_id', $request->asset_id)->where('type', 1)->whereNotNull('accepted_at')->where("user_id", Auth::user()->id)->first();
+                    $applicant = Applicant::where('asset_id', $request->asset_id)->where('type', 1)->whereNotNull('accepted_at') ->orderBy('updated_at', 'desc')->first();
 
                     if ($applicant->user_id != Auth::user()->id) {
                         return response()->json([
