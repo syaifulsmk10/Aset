@@ -127,7 +127,7 @@ class EmployeeController extends Controller
         if (Auth::user()->role->id == 1) {
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|email|max:255|unique:users',
+                'email' => 'sometimes|nullable|string|email|max:255|unique:users',
                 'password' => 'sometimes|required|string|min:8',
                 'nip' => 'sometimes|required|integer|unique:employees',
                 'department_id' => 'sometimes|required|exists:departments,id',
@@ -154,7 +154,7 @@ class EmployeeController extends Controller
             }else{
                 $user->email = $user->email;
             }
-
+            
             if ($request->has('password')) {
                 $user->password = Hash::make($request->password);
             }
