@@ -83,9 +83,14 @@ class ApplicantController extends Controller
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
                     ->where('type', 1)
-                    ->where('updated_at', 'desc');
-                }) // Status "Dipinjamkan"
-                ->get();
+                }) ->with(['applicants' => function ($query) {
+                    $query->orderBy('updated_at', 'desc');
+                }])
+                ->get()
+                ->groupBy('id')
+                ->map(function ($items) {
+                    return $items->sortByDesc('updated_at')->first();
+                });
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
