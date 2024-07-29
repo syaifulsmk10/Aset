@@ -85,12 +85,7 @@ class ApplicantController extends Controller
                     ->where('type', 1)
                 }) ->with(['applicants' => function ($query) {
                     $query->orderBy('updated_at', 'desc');
-                }])
-                ->get()
-                ->groupBy('id')
-                ->map(function ($items) {
-                    return $items->sortByDesc('updated_at')->first();
-                });
+                }])->get()
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
