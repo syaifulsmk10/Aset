@@ -125,6 +125,12 @@ class EmployeeController extends Controller
     {
 
         if (Auth::user()->role->id == 1) {
+
+            $user = User::find($id);
+
+            if (!$request->has('email')) {
+                $user->email = $user->email;
+            }
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|string|email|max:255|unique:users',
@@ -138,7 +144,7 @@ class EmployeeController extends Controller
                 return response()->json(['error' => $validator->errors()], 400);
             }
 
-            $user = User::find($id);
+            
             if (!$user) {
                 return response()->json([
                     "message" => "user not found"
@@ -149,9 +155,7 @@ class EmployeeController extends Controller
                 $user->name = $request->name;
             }
 
-            if (!$request->has('email')) {
-                $user->email = $user->email;
-            }
+           
 
             if ($request->has('email')) {
                 $user->email = $request->email;
