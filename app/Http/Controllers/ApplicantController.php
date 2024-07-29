@@ -82,7 +82,7 @@ class ApplicantController extends Controller
                 ->whereHas('applicants', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
-                    ->where('type', 1)
+                    ->where('type', 1);
                 }) // Status "Dipinjamkan"
                 ->get();
         } else {
