@@ -83,7 +83,7 @@ class ApplicantController extends Controller
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
                     ->where('type', 1)
-                    ->orderBy('updated_at', 'desc');
+                    ->where('updated_at', 'desc');
                 }) // Status "Dipinjamkan"
                 ->get();
         } else {
