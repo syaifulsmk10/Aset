@@ -360,13 +360,13 @@ class ApplicantController extends Controller
             }
             $oldAsset = Asset::find($Applicant->asset_id);
 
-            if ($request->has('type')) {
-                $Applicant->type = Type::getValue($request->type);
-            }
+            // if ($request->has('type')) {
+            //     $Applicant->type = Type::getValue($request->type);
+            // }
 
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
 
-                if ($request->has('type') && $request->type != "Peminjaman") {
+                if ($request->has('type') && $request->type != 1) {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
                 }
 
