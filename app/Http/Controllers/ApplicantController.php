@@ -86,7 +86,7 @@ class ApplicantController extends Controller
                 }) ->with(['applicants' => function ($query) {
                     $query->orderBy('updated_at', 'desc');
                 }])// Mengurutkan aset berdasarkan updated_at terbaru
-                ->first(); // Mengambil aset terbaru
+                ->get(); // Mengambil aset terbaru
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
