@@ -344,7 +344,7 @@ class ApplicantController extends Controller
                 'asset_id' => 'sometimes|required|exists:assets,id',
                 'submission_date' => 'sometimes|required|date|after_or_equal:today',
                 'expiry_date' => 'sometimes|required|date|after:submission_date',
-                'type' => 'sometimes|required|in:Peminjaman,Pengembalian',
+                'type' => 'sometimes|required|in:1,2',
                 'path.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
