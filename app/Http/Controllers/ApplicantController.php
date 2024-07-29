@@ -82,7 +82,8 @@ class ApplicantController extends Controller
                 ->whereHas('applicants', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
-                    ->where('type', 1);
+                    ->where('type', 1)
+                    ->orderBy('updated_at', 'desc');
                 }) // Status "Dipinjamkan"
                 ->get();
         } else {
@@ -176,7 +177,7 @@ class ApplicantController extends Controller
                         ], 403);
                     }
 
-                    $validator = Validator::make($request->all(), [
+                    $validator = Validator::make($request->all(),    [
                         'asset_id' => 'required|exists:assets,id',
                         'type' => 'required|in:1,2',
                         'submission_date' => 'sometimes|required|date|after_or_equal:today',
