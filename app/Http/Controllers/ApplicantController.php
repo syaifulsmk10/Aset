@@ -82,8 +82,10 @@ class ApplicantController extends Controller
                 ->whereHas('applicants', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
-                    ->where('type', 1);
-                }) // Status "Dipinjamkan"
+                    ->where('type', 1)
+                }) ->with(['applicants' => function($query) {
+                    $query->orderBy('updated_at', 'desc');
+                }])
                 ->get();
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
@@ -168,7 +170,7 @@ class ApplicantController extends Controller
                     }
                 } elseif ($asset->status == 'Dipinjamkan' && $request->type == 2) {
 
-                    $applicant = Applicant::where('asset_id', $request->asset_id)->where('type', 1)->whereNotNull('accepted_at')->where("user_id", Auth::user()->id)->first();
+                    $applicant = Applicant::where('asset_id', $request->asset_id)->where('type', 1)->whereNotNull('accepted_at')->first();
 
                     if ($applicant->user_id != Auth::user()->id) {
                         return response()->json([
