@@ -83,7 +83,7 @@ class ApplicantController extends Controller
                 $query->where('user_id', $userId)
                     ->whereNotNull('accepted_at')
                     ->where('type', 1)
-                    ->orderBy('updated_at', 'desc');
+                    ->orderBy('updated_at', 'asc');
                 })->get(); 
         } else {
             return response()->json(['message' => 'Invalid transaction type'], 400);
