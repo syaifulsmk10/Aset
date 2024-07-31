@@ -217,7 +217,7 @@ class AssetController extends Controller
                         $imagePaths = array_diff($imagePaths, [$itemToDelete]);
 
                         try {
-                            unlink(public_path('uploads/' . $itemToDelete));
+                            unlink(public_path('uploads/assets/' . $itemToDelete));
                         } catch (\Exception $e) {
                         }
                     }
@@ -230,7 +230,7 @@ class AssetController extends Controller
                 foreach ($images as $image) {
                     $filename =
                     'VA' . Str::random(40) . $image->getClientOriginalName();
-                    $image->move(public_path('uploads'), $filename);
+                    $image->move(public_path('uploads/assets/'), $filename);
                     $imagePaths[] = $filename;
                 }
             }
