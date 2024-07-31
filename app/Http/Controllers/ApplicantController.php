@@ -75,12 +75,10 @@ class ApplicantController extends Controller
         $userId = Auth::id();
 
         if ($transactionType === '1') {
-            // Ambil aset dengan status "Aktif" dan kondisi barang tertentu
             $assets = Asset::whereIn('status', [1, 7]) // Status "Aktif"
                 ->where('item_condition', 1)
                 ->get();
         } elseif ($transactionType === '2') {
-            // Ambil aset dengan status tertentu dan data terbaru dari `applicants`
             $latestApplicants = DB::table('applicants')
                 ->select('asset_id', DB::raw('MAX(updated_at) as latest_update'))
                 ->groupBy('asset_id');
@@ -97,7 +95,6 @@ class ApplicantController extends Controller
                 ->select('assets.*')
                 ->get();
         } else {
-            // Kode untuk menangani tipe transaksi yang tidak valid
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
         
