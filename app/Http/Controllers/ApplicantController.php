@@ -326,6 +326,7 @@ class ApplicantController extends Controller
                 "UserId" => $Applicant->user->id,
                 "UserApplicants" => $Applicant->user->name,
                 "type" => $Applicant->type,
+                "status" => $Applicant->status,
                 "Images" => $Applicant->images->map(function ($image) {
                     $data = json_decode($image->path, true);
 
