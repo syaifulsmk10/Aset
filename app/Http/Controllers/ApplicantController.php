@@ -74,21 +74,32 @@ class ApplicantController extends Controller
         $userId = Auth::id();
 
         if ($transactionType === '1') {
+            // Ambil aset dengan status "Aktif" dan kondisi barang tertentu
             $assets = Asset::whereIn('status', [1, 7]) // Status "Aktif"
                 ->where('item_condition', 1)
                 ->get();
         } elseif ($transactionType === '2') {
-            $assets = Asset::whereIn('status', [3, 9])
-                ->whereHas('applicants', function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->whereNotNull('accepted_at')
-                    ->where('type', 1)
-                    ->orderBy('updated_at', 'asc');
-                })->get(); 
+            // Ambil aset dengan status tertentu dan data terbaru dari `applicants`
+            $latestApplicants = DB::table('applicants')
+                ->select('asset_id', DB::raw('MAX(updated_at) as latest_update'))
+                ->groupBy('asset_id');
+        
+            $assets = Asset::join('applicants', 'assets.id', '=', 'applicants.asset_id')
+                ->joinSub($latestApplicants, 'latest_applicants', function ($join) {
+                    $join->on('applicants.asset_id', '=', 'latest_applicants.asset_id')
+                         ->on('applicants.updated_at', '=', 'latest_applicants.latest_update');
+                })
+                ->whereIn('assets.status', [3, 9])
+                ->where('applicants.user_id', $userId)
+                ->whereNotNull('applicants.accepted_at')
+                ->where('applicants.type', 1)
+                ->select('assets.*')
+                ->get();
         } else {
+            // Kode untuk menangani tipe transaksi yang tidak valid
             return response()->json(['message' => 'Invalid transaction type'], 400);
         }
-
+        
         if ($assets->isEmpty()) {
             return response()->json([
                 "message" => "asset not found"
