@@ -88,10 +88,18 @@ class ApplicantController extends Controller
                     $join->on('applicants.asset_id', '=', 'latest_applicants.asset_id')
                          ->on('applicants.updated_at', '=', 'latest_applicants.latest_update');
                 })
-                ->whereIn('assets.status', [3, 9])
-                ->where('applicants.user_id', $userId)
-                ->whereNotNull('applicants.accepted_at')
-                ->where('applicants.type', 1)
+                ->where(function($query) use ($userId) {
+                    $query->whereIn('assets.status', [3])
+                          ->where('applicants.user_id', $userId)
+                          ->whereNotNull('applicants.accepted_at')
+                          ->where('applicants.type', 1);
+                })
+                ->orWhere(function($query) use ($userId) {
+                    $query->whereIn('assets.status', [9])
+                          ->where('applicants.user_id', $userId)
+                          ->whereNull('applicants.accepted_at')
+                          ->where('applicants.type', 2);
+                })
                 ->select('assets.*')
                 ->get();
         } else {
