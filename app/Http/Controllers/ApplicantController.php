@@ -467,7 +467,7 @@ class ApplicantController extends Controller
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
 
 
-                if ($request->has('type') && $request->type != "2") {
+                if ($request->has('type') && $request->type != 2) {
                     return response()->json(['error' => 'type cannot be changed.'], 400);
                 }
 
