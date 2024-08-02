@@ -353,6 +353,7 @@ class ApplicantController extends Controller
     }
 
 
+    
     public function update(Request $request, $id)
     {
 
@@ -382,7 +383,7 @@ class ApplicantController extends Controller
             //     $Applicant->type = Type::getValue($request->type);
             // }
 
-            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
+            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
 
                 if ($request->has('type') && $request->type != 1) {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
@@ -467,7 +468,7 @@ class ApplicantController extends Controller
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
 
 
-                if ($request->has('type') && $request->type != 2) {
+                if ($request->has('type') && $request->type != "2") {
                     return response()->json(['error' => 'type cannot be changed.'], 400);
                 }
 
@@ -544,6 +545,7 @@ class ApplicantController extends Controller
         }
     }
 
+  
     public function detil($id)
     {
         if (Auth::user()->role->id == 2) {
