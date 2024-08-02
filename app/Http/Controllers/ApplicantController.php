@@ -458,9 +458,9 @@ class ApplicantController extends Controller
                 ]);
             }
 
-            if ($request->has('type')) {
-                $Applicant->type = Type::getValue($request->type);
-            }
+            // if ($request->has('type')) {
+            //     $Applicant->type = Type::getValue($request->type);
+            // }
 
 
 
