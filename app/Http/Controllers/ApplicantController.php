@@ -383,7 +383,7 @@ class ApplicantController extends Controller
             //     $Applicant->type = Type::getValue($request->type);
             // }
 
-            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
+            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
 
                 if ($request->has('type') && $request->type != 1) {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
