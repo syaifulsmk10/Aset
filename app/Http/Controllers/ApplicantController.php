@@ -354,10 +354,11 @@ class ApplicantController extends Controller
 
 
     
+   
     public function update(Request $request, $id)
     {
 
-        if (Auth::user()->role->id == 2) {
+        if (Auth::user()->role->id === 2) {
             $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
             $validator = Validator::make($request->all(), [
                 'asset_id' => 'sometimes|required|exists:assets,id',
@@ -378,19 +379,22 @@ class ApplicantController extends Controller
                 ], 404);
             }
             $oldAsset = Asset::find($Applicant->asset_id);
+            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1, 7])->first();
+          
 
             // if ($request->has('type')) {
             //     $Applicant->type = Type::getValue($request->type);
             // }
 
-            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
+            
+            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman' || $oldAsset->status == 'Aktif') {
 
                 if ($request->has('type') && $request->type != 1) {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
                 }
 
                 if ($request->has('asset_id')) {
-                    $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1, 7])->first();
+                  
                     if (!$newAsset) {
                         return response()->json(['message' => 'item_Condition'], 400);
                     };
@@ -462,9 +466,6 @@ class ApplicantController extends Controller
             //     $Applicant->type = Type::getValue($request->type);
             // }
 
-
-
-
             if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Pengembalian') {
 
 
@@ -472,20 +473,54 @@ class ApplicantController extends Controller
                     return response()->json(['error' => 'type cannot be changed.'], 400);
                 }
 
+                // <!-- if ($request->has('asset_id')) {
+                //     $newAsset = Asset::find($request->asset_id);
+
+
+                //     if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
+                //         return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+                //     };
+
+                //     if (!$newAsset) {
+                //         return response()->json(['message' => 'item_Condition'], 400);
+                //     };
+                // } -->
+
+
                 if ($request->has('asset_id')) {
-                    $newAsset = Asset::find($request->asset_id);
+                    $Applicant->asset_id = $request->asset_id;
 
+                    $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
+                    $oldAsset = Asset::find($Applicant->asset_id);
 
-                    if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
-                        return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
-                    };
+                   
+                    $AssetNew = Asset::where('id', $request->asset_id)->first();
 
-                    if (!$newAsset) {
+                    if (!$AssetNew) {
                         return response()->json(['message' => 'item_Condition'], 400);
                     };
-                }
+                    if ($AssetNew  && $Applicant->asset_id != $request->asset_id) {
 
-                
+                        $AssetNew->status = 9;
+                        $AssetNew->save();
+                        $oldAsset->status = 3;
+                        $oldAsset->save();
+                        $Applicant->asset_id = $request->asset_id;
+                    };
+
+                    // if ($AssetNew && $Applicant->asset_id == $request->asset_id) {
+                    //     $AssetNew->status = 9;
+                    //     $AssetNew->save();
+                    // };
+
+                    
+
+                //     if ($AssetNew) {
+                //         $AssetNew->update([
+                //             'status' => 9
+                //         ]);
+                //     }
+                // }
 
 
                 if ($request->has('submission_date')) {
@@ -544,6 +579,8 @@ class ApplicantController extends Controller
             ]);
         }
     }
+}
+
 
   
     public function detil($id)
