@@ -475,6 +475,11 @@ class ApplicantController extends Controller
                 if ($request->has('asset_id')) {
                     $Applicant->asset_id = $request->asset_id;
 
+                    $newAsset = Asset::where('id', $request->asset_id)->first();
+                    $newAsset->update({
+                        'status' => 9
+                    }); 
+
 
                     // if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
                     //     return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
