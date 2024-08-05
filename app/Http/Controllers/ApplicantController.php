@@ -476,9 +476,9 @@ class ApplicantController extends Controller
                     $newAsset = Asset::find($request->asset_id);
 
 
-                    if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
-                        return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
-                    };
+                    // if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
+                    //     return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+                    // };
 
                     if (!$newAsset) {
                         return response()->json(['message' => 'item_Condition'], 400);
