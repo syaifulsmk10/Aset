@@ -383,7 +383,7 @@ class ApplicantController extends Controller
             //     $Applicant->type = Type::getValue($request->type);
             // }
 
-            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman' || $oldAsset->status == 'Aktif') {
+            if ($Applicant && $Applicant->status == "Belum_Disetujui" && $oldAsset->status == 'Dalam_Proses_Peminjaman') {
 
                 if ($request->has('type') && $request->type != 1) {
                     return response()->json(['error' => 'Type ID cannot be changed.'], 400);
@@ -472,39 +472,18 @@ class ApplicantController extends Controller
                     return response()->json(['error' => 'type cannot be changed.'], 400);
                 }
 
-                // if ($request->has('asset_id')) {
-                //     $newAsset = Asset::find($request->asset_id);
-
-
-                //     if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
-                //         return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
-                //     };
-
-                //     if (!$newAsset) {
-                //         return response()->json(['message' => 'item_Condition'], 400);
-                //     };
-                // }
-
                 if ($request->has('asset_id')) {
-                    $Applicant->asset_id = $request->asset_id;
+                    $newAsset = Asset::find($request->asset_id);
 
-                    $Applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
-                    $oldAsset = Asset::find($Applicant->asset_id);
 
-                   
-                    $AssetNew = Asset::where('id', $request->asset_id)->first();
+                    if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
+                        return response()->json(['error' => 'Asset ID cannot be changed.'], 400);
+                    };
 
-                    if (!$AssetNew) {
+                    if (!$newAsset) {
                         return response()->json(['message' => 'item_Condition'], 400);
                     };
-                    if ($AssetNew  && $Applicant->asset_id != $request->asset_id) {
-
-                        $AssetNew->status = 9;
-                        $AssetNew->save();
-                        $oldAsset->status = 3;
-                        $oldAsset->save();
-                        $Applicant->asset_id = $request->asset_id;
-                    };
+                }
 
                 
 
