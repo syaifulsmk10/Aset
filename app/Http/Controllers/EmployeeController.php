@@ -84,7 +84,7 @@ class EmployeeController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'nip' => 'required|integer|unique:employees',
+                'nip' => 'required|regex:/^[0-9\s]+$/|unique:employees',
                 'department_id' => 'required|exists:departments,id',
                 'position_id' => 'required|exists:positions,id',
             ]);
