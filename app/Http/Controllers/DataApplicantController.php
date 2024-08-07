@@ -68,12 +68,14 @@ class DataApplicantController extends Controller
 
             foreach ($applicants as $applicant) {
                 $assetName = $applicant->asset ? $applicant->asset->asset_name : null;
+                $codeAsset = $applicant->asset ? $applicant->asset->asset_code : null;
                 $categoryName = $applicant->asset && $applicant->asset->category ? $applicant->asset->category->name : null;
                 $userName = $applicant->user ? $applicant->user->name : null;
 
                 $dataApplicant[] = [
                     "id" => $applicant->id,
                     "NameAsset" => $assetName,
+                    "CodeAsset" => $codeAsset,
                     "Category" => $categoryName,
                     "SubmissionDate" => $applicant->submission_date,
                     "ExpiryDate" => $applicant->expiry_date,
@@ -116,6 +118,7 @@ class DataApplicantController extends Controller
             $dataApplicant = [
                 "id" => $Applicant->id,
                 "NameAsset" => $Applicant->asset->asset_name,
+                "CodeAsset" => $Applicant->asset->asset_code,
                 "Category" => $Applicant->asset->category->name,
                 "SubmissionDate" => $Applicant->submission_date,
                 "ExpiryDate" => $Applicant->expiry_date,
