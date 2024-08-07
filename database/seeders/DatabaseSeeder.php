@@ -60,13 +60,37 @@ class DatabaseSeeder extends Seeder
         "foto" => "admin.png"
     ]);
 
-     Department::create([
-        "name" => "back end"
-    ]);
+        Department::create(['name' => 'Human Resource']);
+        Department::create(['name' => 'Software']);
+        Department::create(['name' => 'Data']);
+        Department::create(['name' => 'Account Management']);
+        Department::create(['name' => 'Finance']);
+        Department::create(['name' => 'General Affair']);
+        Department::create(['name' => 'Project Division']);
+        Department::create(['name' => 'HR Admin']);
+        Department::create(['name' => 'Product Department']);
 
-    Position::create([
-        "name" => "karyawan",
-    ]);
+        Position::create(['name' => 'Human Resources Staff']);
+        Position::create(['name' => 'Frontend Developer']);
+        Position::create(['name' => 'Backend Developer']);
+        Position::create(['name' => 'Finance Staff']);
+        Position::create(['name' => 'Data Engineer']);
+        Position::create(['name' => 'ML Engineer']);
+        Position::create(['name' => 'General Affair Staff']);
+        Position::create(['name' => 'Account Staff']);
+        Position::create(['name' => 'Macro Staff']);
+        Position::create(['name' => 'Software Engineer Manager']);
+        Position::create(['name' => 'Data Engineer Manager']);
+        Position::create(['name' => 'Project Manager Staff']);
+        Position::create(['name' => 'Co Project Manager']);
+        Position::create(['name' => 'OB & Security']);
+        Position::create(['name' => 'GA Manager']);
+        Position::create(['name' => 'Quality Assurance']);
+        Position::create(['name' => 'UI / UX Designer']);
+        Position::create(['name' => 'Admin HR']);
+        Position::create(['name' => 'Product Manager']);
+        Position::create(['name' => 'Finance Manager']);
+        Position::create(['name' => 'Product']);
 
 
     Employee::create([
