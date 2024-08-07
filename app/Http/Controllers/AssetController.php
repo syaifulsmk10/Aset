@@ -115,7 +115,7 @@ class AssetController extends Controller
 
 
             $Asset = Asset::create([
-                'asset_code' => strtoupper(substr($category->name, 0, 1)) . $request->asset_code,
+                'asset_code' =>  $request->asset_code,
                 'asset_name' => $request->asset_name,
                 'category_id' => $request->category_id,
                 'item_condition' => $request->item_condition,
@@ -187,7 +187,7 @@ class AssetController extends Controller
             }
 
             if ($request->has('asset_code')) {
-                $asset->asset_code = strtoupper(substr($asset->asset_name, 0, 1)) . $request->asset_code;
+                $asset->asset_code =  $request->asset_code;
             }
             if ($request->has('asset_name')) {
                 $asset->asset_name = $request->asset_name;
