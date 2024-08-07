@@ -84,7 +84,7 @@ class EmployeeController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'nip' => 'required|regex:/^[0-9\s]+$/|unique:employees',
+                'nip' => 'required|regex:/^[0-9\s-]+$/|unique:employees',
                 'department_id' => 'required|exists:departments,id',
                 'position_id' => 'required|exists:positions,id',
             ]);
@@ -129,7 +129,7 @@ class EmployeeController extends Controller
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|string|email|max:255|unique:users',
                 'password' => 'sometimes|required|string|min:8',
-                'nip' => 'sometimes|required|regex:/^[0-9\s]+$/|unique:employees',
+                'nip' => 'sometimes|required|regex:/^[0-9\s-]+$/|unique:employees',
                 'department_id' => 'sometimes|required|exists:departments,id',
                 'position_id' => 'sometimes|required|exists:positions,id',
             ]);
