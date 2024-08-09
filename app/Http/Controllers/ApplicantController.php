@@ -140,7 +140,7 @@ class ApplicantController extends Controller
                         'expiry_date' => 'required|date|after:submission_date',
                         'type' => 'required|in:1,2',
                         'path' => 'required|array|min:1',
-                        'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
+                        'path.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
                     ]);
 
                     if ($validator->fails()) {
@@ -199,7 +199,7 @@ class ApplicantController extends Controller
                         'submission_date' => 'sometimes|required|date|after_or_equal:today',
                         'expiry_date' => 'nullable|date|after:submission_date',
                         'path' => 'required|array|min:1',
-                        'path.*' => 'required||image|mimes:jpeg,png,jpg,gif|max:2048',
+                       'path.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
                     ]);
 
                     if ($validator->fails()) {

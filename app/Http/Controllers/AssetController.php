@@ -104,7 +104,7 @@ class AssetController extends Controller
                 'expiration_date' => 'required|date',
                 'status' => 'required|integer|max:8',
                 'path' => 'required|array|min:1',
-                'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk setiap file path
+                'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:10240', // Validasi untuk setiap file path
             ]);
 
             if ($validator->fails()) {
@@ -166,7 +166,7 @@ class AssetController extends Controller
                 'expiration_date' => 'sometimes|required|date',
                 'status' => 'sometimes|required|string|in:Aktif,Tidak_Aktif,Dipinjamkan,Dalam_Pemeliharaan,Dalam_Penyimpanan,Dalam_Perbaikan,Dalam_Proses_Peminjaman,Tidak_Layak_Pakai', // Validasi nilai enum status sebagai string
                 'path' => 'sometimes|required|array|min:1',
-                'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'path.*' => 'image|mimes:jpeg,png,jpg,gif|max:10240',
             ]);
 
             if ($validator->fails()) {
