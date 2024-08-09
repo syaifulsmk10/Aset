@@ -39,13 +39,13 @@ class DashboardController extends Controller
 
             $data = [];
             foreach ($categories as $category) {
-                $totalPrice = 0;
+                $totalCategory = count($category->assets); // 
                 foreach ($category->assets as $asset) {
-                    $totalPrice += $asset->price;
+                    
                 }
                 $data[] = [
                     'category' => $category->name,
-                    'total_price' => $totalPrice
+                    'total_category' => $totalcategory
                 ];
             }
 
