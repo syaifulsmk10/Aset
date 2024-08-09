@@ -52,7 +52,7 @@ class AssetController extends Controller
                 $query->whereBetween('received_date', [$startDate, $endDate]);
             }
 
-            $perPage = $request->input('per_page', 10); // Default items per page is 10
+            $perPage = $request->input('per_page', 100); // Default items per page is 10
             $assets = $query->paginate($perPage);
             $totalpage = $assets->lastPage();
 

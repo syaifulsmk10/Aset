@@ -40,7 +40,7 @@ class EmployeeController extends Controller
             });
 
 
-            $perpage = $request->input('per_page', 10);
+            $perpage = $request->input('per_page', 100);
             $users = $query->paginate($perpage);
             $totalpage = $users->lastPage();
             
