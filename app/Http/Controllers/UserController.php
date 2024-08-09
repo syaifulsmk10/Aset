@@ -100,6 +100,7 @@ class UserController extends Controller
                 'data' => [
                     'foto' => $user->foto ? env('APP_URL') . 'uploads/profiles/' . $user->foto : null,
                     'username' => $user->username,
+                    'password' => $user->password,
                     'email' => $user->email,
                 ]
             ], 200);
