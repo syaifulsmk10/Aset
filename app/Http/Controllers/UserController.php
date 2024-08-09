@@ -93,14 +93,14 @@ class UserController extends Controller
                 'message' => "User Not Found"
             ]);
         }
-
+        $hashedPassword = bcrypt($user->password);
         if ($user->role_id == 1) {
             return response()->json([
                 'message' => 'success',
                 'data' => [
                     'foto' => $user->foto ? env('APP_URL') . 'uploads/profiles/' . $user->foto : null,
                     'username' => $user->username,
-                    'password' => $user->password,
+                    'password' =>  $hashedPassword,
                     'email' => $user->email,
                 ]
             ], 200);
