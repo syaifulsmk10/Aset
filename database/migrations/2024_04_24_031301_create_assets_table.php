@@ -20,7 +20,7 @@ return new class extends Migration
             $table->bigInteger('price');
             $table->dateTime('received_date');
             $table->dateTime('expiration_date');
-            $table->enum('status', range(1, 9));
+            $table->enum('status', range(1, 5));
             $table->timestamps();
         });
     }

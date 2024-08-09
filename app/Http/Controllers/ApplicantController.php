@@ -75,7 +75,7 @@ class ApplicantController extends Controller
         $userId = Auth::id();
 
         if ($transactionType === '1') {
-            $assets = Asset::whereIn('status', [1, 7]) // Status "Aktif"
+            $assets = Asset::whereIn('status', [1, 4]) // Status "Aktif"
                 ->where('item_condition', 1)
                 ->get();
         } elseif ($transactionType === '2') {
@@ -95,7 +95,7 @@ class ApplicantController extends Controller
                           ->where('applicants.type', 1);
                 })
                 ->orWhere(function($query) use ($userId) {
-                    $query->whereIn('assets.status', [9])
+                    $query->whereIn('assets.status', [5])
                           ->where('applicants.user_id', $userId)
                           ->whereNull('applicants.accepted_at')
                           ->where('applicants.type', 2);
@@ -171,7 +171,7 @@ class ApplicantController extends Controller
                             'path' => json_encode($imagePaths),
                         ]);
 
-                        $asset->status = 7;
+                        $asset->status = 4;
                         $asset->save();
 
 
@@ -228,7 +228,7 @@ class ApplicantController extends Controller
                             'applicant_id' => $applicant->id,
                             'path' => json_encode($imagePaths),
                         ]);
-                        $asset->status = 9;
+                        $asset->status = 5;
                         $asset->save();
 
                         return response()->json([
@@ -379,7 +379,7 @@ class ApplicantController extends Controller
                 ], 404);
             }
             $oldAsset = Asset::find($Applicant->asset_id);
-            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1, 7])->first();
+            $newAsset = Asset::where('id', $request->asset_id)->where('item_condition', '1')->wherein('status', [1, 4])->first();
           
 
             // if ($request->has('type')) {
@@ -399,13 +399,13 @@ class ApplicantController extends Controller
                         return response()->json(['message' => 'item_Condition'], 400);
                     };
                     if ($newAsset && $Applicant->asset_id == $request->asset_id) {
-                        $newAsset->status = 7;
+                        $newAsset->status = 4;
                         $newAsset->save();
                     };
 
                     if ($newAsset  && $Applicant->asset_id != $request->asset_id) {
 
-                        $newAsset->status = 7;
+                        $newAsset->status = 4;
                         $newAsset->save();
                         $oldAsset->status = 1;
                         $oldAsset->save();
@@ -501,7 +501,7 @@ class ApplicantController extends Controller
                     };
                     if ($AssetNew  && $Applicant->asset_id != $request->asset_id) {
 
-                        $AssetNew->status = 9;
+                        $AssetNew->status = 5;
                         $AssetNew->save();
                         $oldAsset->status = 3;
                         $oldAsset->save();
