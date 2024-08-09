@@ -45,7 +45,7 @@ class DashboardController extends Controller
                 }
                 $data[] = [
                     'category' => $category->name,
-                    'total_category' => $totalcategory
+                    'total_category' => $totalCategory
                 ];
             }
 
