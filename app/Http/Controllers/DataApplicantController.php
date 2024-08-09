@@ -27,6 +27,7 @@ class DataApplicantController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('asset', function ($q) use ($search) {
                     $q->where('asset_name', 'LIKE', "%{$search}%")
+                    ->orWhere('asset_code', 'LIKE', "%{$search}%")
                         ->orWhereHas('category', function ($q) use ($search) {
                             $q->where('name', 'LIKE', "%{$search}%");
                         });
