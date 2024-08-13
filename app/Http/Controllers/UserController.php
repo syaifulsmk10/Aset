@@ -149,7 +149,7 @@ class UserController extends Controller
                 $user->email = $request->email;
             }
 
-            if ($request->has("password")) {
+            if ($request->password) {
                 $user->password = Hash::make($request->password);
             }
 
